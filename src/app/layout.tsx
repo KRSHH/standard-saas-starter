@@ -42,7 +42,8 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: "/icon.svg",
-    apple: "/apple-icon.png",
+    apple: "/icon.svg",
+    shortcut: "/icon.svg",
   },
   manifest: "/manifest.webmanifest",
   robots: {

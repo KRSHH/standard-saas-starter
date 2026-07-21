@@ -116,7 +116,12 @@ export async function rateLimit(
   return { limited: result.limited, headers };
 }
 
-function getClientIp(request: Request): string {
+/**
+ * Extract the client IP from request headers. Honors `x-forwarded-for`
+ * (first hop) then `x-real-ip`, falling back to `"unknown"`. Exported so
+ * audit logging and other security helpers reuse the same resolution.
+ */
+export function getClientIp(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");
   if (forwarded) return forwarded.split(",")[0]!.trim();
   const real = request.headers.get("x-real-ip");

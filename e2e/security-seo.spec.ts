@@ -40,6 +40,27 @@ test.describe("SEO", () => {
     expect(body).toContain("<urlset");
     expect(body).toContain("/pricing");
     expect(body).toContain("/features");
+    // Legal routes are real pages now — they must be in the sitemap.
+    expect(body).toContain("/privacy");
+    expect(body).toContain("/terms");
+    expect(body).toContain("/cookies");
+    expect(body).toContain("/contact");
+    // Routes that have no page must NOT appear (would point at a 404).
+    expect(body).not.toContain("/blog");
+    expect(body).not.toContain("/about");
+  });
+
+  test("legal routes resolve (not 404)", async ({ request }) => {
+    for (const path of ["/privacy", "/terms", "/cookies", "/contact"]) {
+      const r = await request.get(path);
+      expect(r.status(), `${path} should be 200`).toBe(200);
+    }
+  });
+
+  test("icon.svg is served", async ({ request }) => {
+    const r = await request.get("/icon.svg");
+    expect(r.status()).toBe(200);
+    expect(r.headers()["content-type"]).toContain("image/svg");
   });
 
   test("robots.txt allows marketing, disallows app + api", async ({
@@ -58,9 +79,17 @@ test.describe("SEO", () => {
   }) => {
     const r = await request.get("/manifest.webmanifest");
     const manifest = await r.json();
-    expect(manifest.name).toBe("Acme");
+    // Name is env-driven; assert it is present and non-empty rather than a
+    // hard-coded literal so the test survives a brand rename.
+    expect(typeof manifest.name).toBe("string");
+    expect(manifest.name.length).toBeGreaterThan(0);
     expect(manifest.display).toBe("standalone");
     expect(Array.isArray(manifest.icons)).toBe(true);
+    // Every declared icon src must resolve.
+    for (const icon of manifest.icons) {
+      const ir = await request.get(icon.src);
+      expect(ir.status(), `${icon.src} should be 200`).toBe(200);
+    }
   });
 
   test("homepage has JSON-LD Organization structured data", async ({

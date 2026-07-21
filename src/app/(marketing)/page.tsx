@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, ShieldCheck, Zap, Layers } from "lucide-react";
 
@@ -8,7 +9,14 @@ import {
   organizationSchema,
   websiteSchema,
 } from "@/components/seo/json-ld";
+import { buildMetadata } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
+
+export const metadata: Metadata = buildMetadata({
+  title: siteConfig.title,
+  description: siteConfig.description,
+  path: "",
+});
 
 export default function HomePage() {
   return (
@@ -32,7 +40,7 @@ export default function HomePage() {
         </p>
         <div className="flex flex-col gap-3 sm:flex-row">
           <Button size="lg" asChild>
-            <Link href="/auth/sign-up">
+            <Link href="/sign-up">
               Get started <ArrowRight className="size-4" />
             </Link>
           </Button>
@@ -75,7 +83,7 @@ export default function HomePage() {
           Clone, configure, and ship. No credit card required to run locally.
         </p>
         <Button size="lg" className="mt-8" asChild>
-          <Link href="/auth/sign-up">
+          <Link href="/sign-up">
             Get started <ArrowRight className="size-4" />
           </Link>
         </Button>

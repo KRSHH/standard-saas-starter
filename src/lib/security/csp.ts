@@ -18,9 +18,21 @@ export function buildCspHeader(nonce: string): string {
   const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "";
   const sentryAllowed = "https://*.sentry.io https://*.ingest.sentry.io";
 
+  // Cloudflare Turnstile (bot protection) — opt-in. When configured, allow
+  // its script + iframe origins. Omitted entirely when the site key is unset.
+  const turnstileEnabled =
+    typeof process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY === "string" &&
+    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY.length > 0;
+  const turnstileScript = turnstileEnabled
+    ? " https://challenges.cloudflare.com"
+    : "";
+  const turnstileFrame = turnstileEnabled
+    ? " https://challenges.cloudflare.com"
+    : "";
+
   const csp = [
     `default-src 'self';`,
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https: http:${isDev ? " 'unsafe-eval'" : ""};`,
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https: http:${isDev ? " 'unsafe-eval'" : ""}${turnstileScript};`,
     `style-src 'self' 'nonce-${nonce}' 'unsafe-inline';`,
     `img-src 'self' blob: data: https:;`,
     `font-src 'self' data:;`,
@@ -29,7 +41,7 @@ export function buildCspHeader(nonce: string): string {
     `base-uri 'self';`,
     `form-action 'self';`,
     `frame-ancestors 'none';`,
-    `frame-src 'self' https://js.razorpay.com;`,
+    `frame-src 'self' https://js.razorpay.com${turnstileFrame};`,
     `upgrade-insecure-requests;`,
   ];
 

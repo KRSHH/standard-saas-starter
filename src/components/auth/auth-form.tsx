@@ -1,18 +1,20 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Field, SubmitButton } from "@/components/auth/form-fields";
+import {
+  TurnstileWidget,
+  isTurnstileConfigured,
+} from "@/components/auth/turnstile";
 
 const signInSchema = z.object({
   email: z.email({ message: "Enter a valid email" }),
@@ -49,6 +51,10 @@ export function AuthForm({
   });
 
   const [isLoading, setIsLoading] = React.useState(false);
+  const [turnstileToken, setTurnstileToken] = React.useState<string | null>(
+    null,
+  );
+  const turnstileRequired = isSignUp && isTurnstileConfigured();
 
   const onSignIn = async (values: SignInValues) => {
     setIsLoading(true);
@@ -68,6 +74,11 @@ export function AuthForm({
   };
 
   const onSignUp = async (values: SignUpValues) => {
+    // If Turnstile is configured, refuse submission until the challenge passes.
+    if (turnstileRequired && !turnstileToken) {
+      toast.error("Please complete the bot check.");
+      return;
+    }
     setIsLoading(true);
     try {
       const supabase = createClient();
@@ -77,13 +88,15 @@ export function AuthForm({
         options: {
           data: { full_name: values.fullName },
           emailRedirectTo: `${window.location.origin}/auth/callback`,
+          ...(turnstileToken ? { captchaToken: turnstileToken } : {}),
         },
       });
       if (error) {
         toast.error(error.message);
         return;
       }
-      toast.success("Account created! Check your email to verify.");
+      // Email verification is on → route to the "check email" landing.
+      router.push("/check-email");
     } finally {
       setIsLoading(false);
     }
@@ -120,6 +133,9 @@ export function AuthForm({
           error={signUp.formState.errors.password?.message}
           {...signUp.register("password")}
         />
+        {turnstileRequired ? (
+          <TurnstileWidget onToken={setTurnstileToken} />
+        ) : null}
         <SubmitButton isLoading={isLoading} label="Create account" />
       </form>
     );
@@ -147,41 +163,13 @@ export function AuthForm({
         error={signIn.formState.errors.password?.message}
         {...signIn.register("password")}
       />
+      <Link
+        href="/forgot-password"
+        className="text-muted-foreground hover:text-foreground self-end text-xs"
+      >
+        Forgot password?
+      </Link>
       <SubmitButton isLoading={isLoading} label="Sign in" />
     </form>
-  );
-}
-
-function Field({
-  id,
-  label,
-  error,
-  ...props
-}: React.ComponentProps<"input"> & {
-  id: string;
-  label: string;
-  error?: string;
-}) {
-  return (
-    <div className="flex flex-col gap-2">
-      <Label htmlFor={id}>{label}</Label>
-      <Input id={id} {...props} />
-      {error && <p className="text-destructive text-xs">{error}</p>}
-    </div>
-  );
-}
-
-function SubmitButton({
-  isLoading,
-  label,
-}: {
-  isLoading: boolean;
-  label: string;
-}) {
-  return (
-    <Button type="submit" disabled={isLoading} className="mt-2">
-      {isLoading && <Loader2 className="size-4 animate-spin" />}
-      {label}
-    </Button>
   );
 }

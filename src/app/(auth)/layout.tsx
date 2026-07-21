@@ -15,7 +15,7 @@ export default function AuthLayout({
         aria-label={`${siteConfig.name} home`}
       >
         <div className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-lg text-sm font-bold">
-          D
+          {siteConfig.name.charAt(0)}
         </div>
         <span className="text-lg font-semibold tracking-tight">
           {siteConfig.name}

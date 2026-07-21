@@ -4,7 +4,7 @@
  * Creates: two profiles, matching subscriptions (trialing), and one
  * organization each. Safe to re-run (idempotent via upsert / on-conflict).
  *
- * Requires: DATABASE_URL set, migration 0001 applied.
+ * Requires: DATABASE_URL set, migrations applied (`bun run db:migrate`).
  */
 import "dotenv/config";
 

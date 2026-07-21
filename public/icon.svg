@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="App icon">
+  <!-- Brand monogram. Replace with your own mark; the in-app chrome
+       (site-nav, sidebar, user menu) renders the brand initial in the
+       same primary-on-foreground style. -->
+  <rect width="512" height="512" rx="112" fill="#0a0a0a" />
+  <text
+    x="50%"
+    y="50%"
+    dy=".07em"
+    text-anchor="middle"
+    dominant-baseline="central"
+    font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif"
+    font-size="320"
+    font-weight="700"
+    fill="#fafafa"
+  >A</text>
+</svg>

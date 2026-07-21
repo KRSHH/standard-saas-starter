@@ -1,6 +1,7 @@
 import { getCurrentUser } from "@/lib/auth";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { ThemeToggle, UserMenu } from "@/components/dashboard/user-menu";
+import { NotificationBell } from "@/components/dashboard/notification-bell";
 import { siteConfig } from "@/lib/site";
 
 export default async function AppLayout({
@@ -26,6 +27,7 @@ export default async function AppLayout({
 
           <div className="ml-auto flex items-center gap-2">
             <ThemeToggle />
+            <NotificationBell />
             <UserMenu
               email={user.email ?? ""}
               fullName={user.user_metadata?.full_name}

@@ -1,4 +1,4 @@
-import { siteConfig } from "@/lib/site";
+import { configuredExternalLinks, siteConfig } from "@/lib/site";
 
 /**
  * JSON-LD structured data for SEO.
@@ -20,6 +20,7 @@ export function JsonLd({ data }: { data: object }) {
 
 /** Organization schema — used on the homepage + footer. */
 export function organizationSchema() {
+  const sameAs = configuredExternalLinks();
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -27,7 +28,7 @@ export function organizationSchema() {
     url: siteConfig.url,
     description: siteConfig.description,
     logo: `${siteConfig.url}/icon.svg`,
-    sameAs: Object.values(siteConfig.links),
+    ...(sameAs.length > 0 ? { sameAs } : {}),
   };
 }
 

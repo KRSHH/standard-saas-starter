@@ -44,7 +44,7 @@ export function SiteHeader({ className }: { className?: string }) {
             Sign in
           </Link>
           <Link
-            href="/auth/sign-up"
+            href="/sign-up"
             className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-9 items-center rounded-md px-4 text-sm font-medium transition-colors"
           >
             Get started
@@ -72,25 +72,32 @@ export function SiteFooter() {
           <Link href="/terms" className="hover:text-foreground">
             Terms
           </Link>
+          <Link href="/cookies" className="hover:text-foreground">
+            Cookies
+          </Link>
           <Link href="/contact" className="hover:text-foreground">
             Contact
           </Link>
-          <a
-            href={siteConfig.links.twitter}
-            className="hover:text-foreground"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Twitter
-          </a>
-          <a
-            href={siteConfig.links.github}
-            className="hover:text-foreground"
-            target="_blank"
-            rel="noreferrer"
-          >
-            GitHub
-          </a>
+          {siteConfig.links.twitter ? (
+            <a
+              href={siteConfig.links.twitter}
+              className="hover:text-foreground"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Twitter
+            </a>
+          ) : null}
+          {siteConfig.links.github ? (
+            <a
+              href={siteConfig.links.github}
+              className="hover:text-foreground"
+              target="_blank"
+              rel="noreferrer"
+            >
+              GitHub
+            </a>
+          ) : null}
         </nav>
         <p className="text-muted-foreground text-xs">
           © {new Date().getFullYear()} {siteConfig.name}.

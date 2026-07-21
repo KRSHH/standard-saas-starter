@@ -8,6 +8,9 @@ import { createClient } from "@/lib/supabase/server";
 /**
  * Get the current Supabase user OR redirect to sign-in.
  * Use at the top of any protected Server Component / Server Action.
+ *
+ * For Route Handlers (API endpoints) prefer `requireUser`, which returns a
+ * 401 JSON response on missing session instead of redirecting.
  */
 export async function getCurrentUser() {
   const supabase = await createClient();
@@ -19,6 +22,20 @@ export async function getCurrentUser() {
     redirect("/sign-in");
   }
   return user;
+}
+
+/**
+ * Get the current Supabase user or null — never redirects.
+ * Use on routes that must render for both authed and unauthed visitors
+ * (e.g. a landing page that adapts to session state), or in Route Handlers
+ * that want to return a 401 JSON body rather than redirect.
+ */
+export async function getCurrentUserOrNull() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  return user ?? null;
 }
 
 /**

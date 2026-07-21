@@ -2,13 +2,35 @@
  * Central site config — single source of truth for SEO + branding.
  * Used by root layout, sitemap, robots, manifest, OG image.
  *
- * Replace "Acme" with your product name before shipping.
+ * Brand values are env-driven so the template ships without hard-coded
+ * product names: set NEXT_PUBLIC_APP_NAME / NEXT_PUBLIC_APP_URL in .env.local.
+ * Social links default to empty (omit from JSON-LD `sameAs` when unset).
  */
+
+function trimmedUrl(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  try {
+    return new URL(value).toString();
+  } catch {
+    return undefined;
+  }
+}
+
+const name = process.env.NEXT_PUBLIC_APP_NAME ?? "Acme";
+
+const twitter = trimmedUrl(process.env.NEXT_PUBLIC_TWITTER_URL);
+const github = trimmedUrl(process.env.NEXT_PUBLIC_GITHUB_URL);
+
+/**
+ * External profile links. Empty entries are filtered out of JSON-LD `sameAs`
+ * so search engines don't see dangling links when only some are configured.
+ */
+const externalLinks = { twitter, github } as const;
+
 export const siteConfig = {
-  name: "Acme",
-  title: "Acme — The modern way to run your business",
-  description:
-    "Acme is a production-ready Next.js SaaS template. Authentication, billing, observability, and a hardened security baseline — batteries included.",
+  name,
+  title: `${name} — The modern way to run your business`,
+  description: `${name} is a production-ready Next.js SaaS template. Authentication, billing, observability, and a hardened security baseline — batteries included.`,
   url: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
   locale: "en_US",
   keywords: [
@@ -21,9 +43,24 @@ export const siteConfig = {
     "production Next.js",
   ] as string[],
   links: {
-    twitter: "https://twitter.com/yourbrand",
-    github: "https://github.com/yourbrand/nextjs-template",
+    ...externalLinks,
+    legal: {
+      privacy: "/privacy",
+      terms: "/terms",
+      cookies: "/cookies",
+      contact: "/contact",
+    },
   },
 } as const;
 
 export type SiteConfig = typeof siteConfig;
+
+/**
+ * External profile URLs that are actually set — used for JSON-LD `sameAs`.
+ * Internal/legal links never belong in `sameAs` (they're same-site).
+ */
+export function configuredExternalLinks(): string[] {
+  return Object.values(externalLinks).filter(
+    (v): v is string => typeof v === "string",
+  );
+}

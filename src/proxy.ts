@@ -72,8 +72,13 @@ async function refreshSupabaseSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Redirect authenticated users away from sign-in and sign-up.
-  if (user && ["/sign-in", "/sign-up"].includes(request.nextUrl.pathname)) {
+  // Redirect authenticated users away from the public auth surface.
+  // /forgot-password and /reset-password are intentionally EXCLUDED — the
+  // password-reset flow lands here with an active recovered session.
+  if (
+    user &&
+    ["/sign-in", "/sign-up", "/check-email"].includes(request.nextUrl.pathname)
+  ) {
     const url = request.nextUrl.clone();
     url.pathname = "/app";
     url.searchParams.delete("redirect");

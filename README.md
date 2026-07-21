@@ -14,7 +14,7 @@ testing, and SEO, all wired and verified. Clone, configure, ship.
 | Language  | TypeScript (strict)                      | 7.0        |
 | UI        | Tailwind v4 + shadcn/ui (Radix)          | 4.3        |
 | Auth      | Supabase SSR (cookie-based PKCE)         | 0.12       |
-| Database  | Postgres + Drizzle ORM                   | 0.45       |
+| Database  | Postgres + Drizzle ORM (RLS-declarative) | 0.45       |
 | Billing   | Razorpay + Stripe (webhooks, idempotent) | 2.9 / 22.3 |
 | Email     | Resend + react-email                     | 6.17 / 6.9 |
 | Analytics | PostHog (web + server)                   | 1.404      |
@@ -30,8 +30,23 @@ testing, and SEO, all wired and verified. Clone, configure, ship.
 - **Server-authoritative billing**: subscription status is written ONLY by
   webhook handlers into `app.subscriptions`; the client never reads plan/status
   except via authenticated server calls.
+- **Complete account lifecycle**: sign-up + email verification, forgot/reset
+  password, change email + change password with Supabase reauthentication,
+  OAuth account linking/unlinking, account deletion, and optional Cloudflare
+  Turnstile bot protection on public auth forms.
+- **Notifications**: provider-neutral layer with in-app + email channels,
+  per-category preferences, one-click unsubscribe (HMAC-signed tokens, no DB
+  lookup to validate), and Resend webhook handling for bounce/complaint
+  suppression.
+- **File uploads**: signed upload URLs from an authenticated server route,
+  per-user path namespacing, MIME + size + quota enforcement, and a private
+  Supabase Storage bucket — bytes never transit the Next.js server.
+- **Audit log**: append-only `app.audit_logs` with sanitized metadata; auth
+  changes, billing events, destructive operations, and notification state
+  changes all write records.
 - **SEO**: metadata defaults, dynamic OG image (edge), JSON-LD, sitemap, robots,
-  PWA manifest, canonical URLs.
+  PWA manifest, canonical URLs, real `/icon.svg`, and Privacy/Terms/Cookies/
+  Contact routes with placeholder copy.
 - **Observability**: PostHog + Sentry + `/api/health` (DB ping).
 - **DX**: Bun, VSCode settings, `.editorconfig`, `.nvmrc`, strict TS, flat ESLint,
   Prettier with Tailwind class sorting.
@@ -46,8 +61,8 @@ bun install
 cp .env.example .env.local
 # Fill in at least NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, DATABASE_URL
 
-# 3. Apply the schema + RLS migration
-psql "$DATABASE_URL" -f supabase/migrations/0001_init.sql
+# 3. Apply schema + RLS migrations (tables, policies, triggers, storage bucket)
+bun run db:migrate
 
 # 4. (Optional) Seed dev data
 bun run db:seed
@@ -68,6 +83,8 @@ bun run dev
 | `bun run test`        | Vitest unit tests                       |
 | `bun run test:e2e`    | Playwright E2E (spins up dev server)    |
 | `bun run db:generate` | Generate Drizzle migration from schema  |
+| `bun run db:custom`   | Empty custom migration (triggers/SQL)   |
+| `bun run db:migrate`  | Apply pending Drizzle migrations        |
 | `bun run db:push`     | Push schema directly (dev only)         |
 | `bun run db:seed`     | Seed dev data (2 profiles + subs + org) |
 
@@ -81,9 +98,10 @@ bun run dev
 src/
 ├── app/                      # App Router
 │   ├── (marketing)/          # Public site (home, pricing, features)
-│   ├── (auth)/               # Sign-in / sign-up
-│   ├── app/                  # Protected dashboard (auth-gated)
-│   ├── api/                  # health, webhooks/{razorpay,stripe}
+│   ├── (legal)/              # Privacy, Terms, Cookies, Contact (placeholder copy)
+│   ├── (auth)/               # Sign-in / sign-up / forgot / reset / check-email
+│   ├── app/                  # Protected dashboard (auth-gated) + settings tabs
+│   ├── api/                  # health, uploads, notifications, webhooks/{razorpay,stripe,resend}
 │   ├── layout.tsx            # Root (fonts, metadata, providers, nonce)
 │   ├── globals.css           # Tailwind v4 + design tokens
 │   ├── {error,global-error,loading,not-found}.tsx
@@ -92,21 +110,26 @@ src/
 ├── components/
 │   ├── ui/                   # shadcn/ui primitives (owned, MIT-style)
 │   ├── marketing/            # Site nav + footer
-│   ├── dashboard/            # Sidebar + user menu + theme toggle
-│   ├── auth/                 # Auth form (react-hook-form + zod)
+│   ├── dashboard/            # Sidebar + user menu + theme toggle + notification bell
+│   ├── auth/                 # Auth forms (react-hook-form + zod)
+│   ├── settings/             # Profile / Account / Security / Linked-accounts sub-forms
 │   ├── seo/                  # JSON-LD
 │   └── providers/            # PostHog
 ├── lib/
 │   ├── supabase/             # SSR adapters: client, server, admin
-│   ├── db/                   # Drizzle schema + client + seed
+│   ├── db/                   # Drizzle schema (RLS-declarative) + client + seed
 │   ├── payments/             # Razorpay, Stripe, plans, subscriptions, idempotency
+│   ├── notifications/        # Store, dispatcher, unsubscribe tokens
+│   ├── uploads/              # Signed URLs, paths, quota, scanner extension point
+│   ├── audit/                # logAudit + client action + actions registry + sanitizer
+│   ├── auth/                 # Server actions + OAuth provider registry
 │   ├── email/                # Resend client + send helpers
 │   ├── analytics/            # PostHog server
-│   ├── security/             # CSP, rate limiting
+│   ├── security/             # CSP, rate limiting, Turnstile
 │   ├── auth.ts               # getCurrentUser / getCurrentProfile
 │   ├── site.ts               # Branding + SEO — single source of truth
 │   └── seo.ts                # buildMetadata helper
-├── emails/                   # react-email templates
+├── emails/                   # react-email templates (welcome, notification)
 └── instrumentation.ts        # Sentry server init
 ```
 
@@ -115,9 +138,11 @@ src/
 1. **Brand**: edit `src/lib/site.ts` (name, title, description, keywords, links).
    The brand initial is used for the logo monogram everywhere.
 2. **Plans**: edit `src/lib/payments/plans.ts` (Starter/Pro → your tiers, USD/INR).
-3. **Schema**: edit `src/db/schema.ts` + `supabase/migrations/0001_init.sql`
-   (the `app` schema, profiles, subscriptions, organizations — rename columns
-   or tables for your domain).
+3. **Schema**: edit `src/db/schema.ts` (the `app` schema, profiles,
+   subscriptions, organizations — rename columns or tables for your domain),
+   then `bun run db:generate` to produce a migration. For triggers, the storage
+   bucket, or other SQL Drizzle can't express, run `bun run db:custom` and fill
+   the generated file — Drizzle tracks it like any other migration.
 4. **Email**: edit `src/emails/welcome.tsx` + `src/lib/email/send.ts`.
 
 ## License

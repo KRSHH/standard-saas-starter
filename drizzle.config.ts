@@ -8,6 +8,10 @@ export default defineConfig({
   dialect: "postgresql",
   schema: "./src/db/schema.ts",
   out: "./drizzle",
+  // Supabase-compatible migration filenames (YYYYMMDDHHMMSS_name.sql).
+  migrations: {
+    prefix: "supabase",
+  },
   dbCredentials: {
     url: databaseUrl,
   },

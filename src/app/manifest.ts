@@ -12,10 +12,21 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: "#ffffff",
     theme_color: "#0a0a0a",
     icons: [
-      { src: "/icon.svg", sizes: "any", type: "image/svg+xml" },
-      { src: "/apple-icon.png", sizes: "180x180", type: "image/png" },
-      { src: "/icon-192.png", sizes: "192x192", type: "image/png" },
-      { src: "/icon-512.png", sizes: "512x512", type: "image/png" },
+      // Single SVG serves every size — crisp at any resolution and stays in
+      // sync with the brand mark. Replace public/icon.svg with your own.
+      { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
+      {
+        src: "/icon.svg",
+        sizes: "192x192",
+        type: "image/svg+xml",
+        purpose: "maskable",
+      },
+      {
+        src: "/icon.svg",
+        sizes: "512x512",
+        type: "image/svg+xml",
+        purpose: "maskable",
+      },
     ],
   };
 }

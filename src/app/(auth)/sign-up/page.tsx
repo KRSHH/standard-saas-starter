@@ -7,7 +7,7 @@ import { AuthForm } from "@/components/auth/auth-form";
 export const metadata: Metadata = buildMetadata({
   title: "Create account",
   description: "Create your account. 14-day free trial.",
-  path: "/auth/sign-up",
+  path: "/sign-up",
   noIndex: true,
 });
 
