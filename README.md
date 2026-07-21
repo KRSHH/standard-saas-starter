@@ -1,10 +1,7 @@
 # Next.js SaaS Template
 
-A production-grade Next.js SaaS starter — auth, billing, observability, security,
-testing, and SEO, all wired and verified. Clone, configure, ship.
-
-> Every layer is the latest stable (verified July 2026). Built with context7-checked
-> patterns, not guesses.
+Next.js SaaS starter - auth, billing, observability, security,
+testing, and SEO, all wired.
 
 ## What's included
 
@@ -21,35 +18,6 @@ testing, and SEO, all wired and verified. Clone, configure, ship.
 | Errors    | Sentry (replays + traces)                | 10.67      |
 | Testing   | Vitest (unit) + Playwright (E2E)         | 4.1 / 1.61 |
 | Lint      | ESLint 9 flat config + Prettier          | 9.34       |
-
-## Highlights
-
-- **Security baseline**: strict CSP with per-request nonces, RLS on every table,
-  revoked default privileges, webhook signature verification + idempotency,
-  rate limiting, full security header bundle (HSTS, X-Frame-Options, etc.).
-- **Server-authoritative billing**: subscription status is written ONLY by
-  webhook handlers into `app.subscriptions`; the client never reads plan/status
-  except via authenticated server calls.
-- **Complete account lifecycle**: sign-up + email verification, forgot/reset
-  password, change email + change password with Supabase reauthentication,
-  OAuth account linking/unlinking, account deletion, and optional Cloudflare
-  Turnstile bot protection on public auth forms.
-- **Notifications**: provider-neutral layer with in-app + email channels,
-  per-category preferences, one-click unsubscribe (HMAC-signed tokens, no DB
-  lookup to validate), and Resend webhook handling for bounce/complaint
-  suppression.
-- **File uploads**: signed upload URLs from an authenticated server route,
-  per-user path namespacing, MIME + size + quota enforcement, and a private
-  Supabase Storage bucket — bytes never transit the Next.js server.
-- **Audit log**: append-only `app.audit_logs` with sanitized metadata; auth
-  changes, billing events, destructive operations, and notification state
-  changes all write records.
-- **SEO**: metadata defaults, dynamic OG image (edge), JSON-LD, sitemap, robots,
-  PWA manifest, canonical URLs, real `/icon.svg`, and Privacy/Terms/Cookies/
-  Contact routes with placeholder copy.
-- **Observability**: PostHog + Sentry + `/api/health` (DB ping).
-- **DX**: Bun, VSCode settings, `.editorconfig`, `.nvmrc`, strict TS, flat ESLint,
-  Prettier with Tailwind class sorting.
 
 ## Quick start
 
@@ -132,18 +100,6 @@ src/
 ├── emails/                   # react-email templates (welcome, notification)
 └── instrumentation.ts        # Sentry server init
 ```
-
-## Customizing
-
-1. **Brand**: edit `src/lib/site.ts` (name, title, description, keywords, links).
-   The brand initial is used for the logo monogram everywhere.
-2. **Plans**: edit `src/lib/payments/plans.ts` (Starter/Pro → your tiers, USD/INR).
-3. **Schema**: edit `src/db/schema.ts` (the `app` schema, profiles,
-   subscriptions, organizations — rename columns or tables for your domain),
-   then `bun run db:generate` to produce a migration. For triggers, the storage
-   bucket, or other SQL Drizzle can't express, run `bun run db:custom` and fill
-   the generated file — Drizzle tracks it like any other migration.
-4. **Email**: edit `src/emails/welcome.tsx` + `src/lib/email/send.ts`.
 
 ## License
 
