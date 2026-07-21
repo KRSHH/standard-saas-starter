@@ -1,0 +1,17 @@
+# Bun configuration — replaces .npmrc.
+# Reference: https://bun.sh/docs/runtime/bunfig
+
+[install]
+# Generate/update bun.lock on install. CI uses `bun ci` (frozen) instead,
+# which fails if package.json and bun.lock disagree.
+frozenLockfile = false
+
+# Install peer dependencies (needed for e.g. @radix-ui/* consumer packages).
+peer = true
+
+# Install optional + dev dependencies.
+optional = true
+dev = true
+
+# Hoisted linker — matches npm's node_modules layout, which Next/webpack expect.
+linker = "hoisted"

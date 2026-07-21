@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+build/
+next-env.d.ts
+
+# Production
+*.tsbuildinfo
+
+# Env files — never commit secrets
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor / OS
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+
+# Testing
+coverage/
+playwright-report/
+test-results/
+
+# Drizzle
+drizzle/meta/
+
+# Sentry
+.sentryclirc

@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "ms-playwright.playwright",
+    "drizzle-team.drizzle-vscode",
+    "yoavbls.pretty-ts-errors",
+    "unifiedjs.vscode-mdx"
+  ]
+}
