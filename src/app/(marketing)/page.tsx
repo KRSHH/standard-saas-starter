@@ -26,7 +26,7 @@ export default function HomePage() {
           Ship your SaaS in days, not weeks
         </h1>
         <p className="text-muted-foreground max-w-2xl text-lg text-balance">
-          {siteConfig.name} is a Next.js SaaS template with auth, billing, AI,
+          {siteConfig.name} is a Next.js SaaS template with auth, billing,
           observability, and a hardened security baseline — so you can skip the
           plumbing and build your product.
         </p>
@@ -54,7 +54,7 @@ export default function HomePage() {
           <PillarCard
             icon={<Zap className="size-5" />}
             title="Full stack, wired"
-            description="Supabase auth, Drizzle + Postgres, Razorpay + Stripe billing, Resend email, AI SDK, PostHog, Sentry."
+            description="Supabase auth, Drizzle + Postgres, Razorpay + Stripe billing, Resend email, PostHog, and Sentry."
             href="/features"
           />
           <PillarCard

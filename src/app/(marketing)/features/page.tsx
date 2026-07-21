@@ -6,7 +6,7 @@ import { buildMetadata } from "@/lib/seo";
 export const metadata: Metadata = buildMetadata({
   title: "Features",
   description:
-    "Everything included in this Next.js SaaS template: auth, billing, AI, observability, security, testing, and SEO.",
+    "Everything included in this Next.js SaaS template: auth, billing, observability, security, testing, and SEO.",
   path: "/features",
 });
 
@@ -36,15 +36,6 @@ const FEATURES = [
       "Server-authoritative subscription store",
       "Webhook idempotency (dedup ledger)",
       "Signature verification (HMAC + Stripe)",
-    ],
-  },
-  {
-    category: "AI",
-    items: [
-      "Vercel AI SDK v7",
-      "OpenAI + Anthropic provider registry",
-      "Streaming /api/chat endpoint",
-      "Drop-in chat widget",
     ],
   },
   {

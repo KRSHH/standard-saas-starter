@@ -41,7 +41,7 @@ export const PLANS = {
       "Priority support",
       "50 GB storage",
       "Advanced analytics",
-      "AI assistant",
+      "Advanced team controls",
     ],
   },
 } as const;

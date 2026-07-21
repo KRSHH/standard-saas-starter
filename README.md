@@ -1,6 +1,6 @@
 # Next.js SaaS Template
 
-A production-grade Next.js SaaS starter — auth, billing, AI, observability, security,
+A production-grade Next.js SaaS starter — auth, billing, observability, security,
 testing, and SEO, all wired and verified. Clone, configure, ship.
 
 > Every layer is the latest stable (verified July 2026). Built with context7-checked
@@ -17,7 +17,6 @@ testing, and SEO, all wired and verified. Clone, configure, ship.
 | Database  | Postgres + Drizzle ORM                   | 0.45       |
 | Billing   | Razorpay + Stripe (webhooks, idempotent) | 2.9 / 22.3 |
 | Email     | Resend + react-email                     | 6.17 / 6.9 |
-| AI        | Vercel AI SDK (OpenAI + Anthropic)       | 7.0        |
 | Analytics | PostHog (web + server)                   | 1.404      |
 | Errors    | Sentry (replays + traces)                | 10.67      |
 | Testing   | Vitest (unit) + Playwright (E2E)         | 4.1 / 1.61 |
@@ -84,7 +83,7 @@ src/
 │   ├── (marketing)/          # Public site (home, pricing, features)
 │   ├── (auth)/               # Sign-in / sign-up
 │   ├── app/                  # Protected dashboard (auth-gated)
-│   ├── api/                  # chat, health, webhooks/{razorpay,stripe}
+│   ├── api/                  # health, webhooks/{razorpay,stripe}
 │   ├── layout.tsx            # Root (fonts, metadata, providers, nonce)
 │   ├── globals.css           # Tailwind v4 + design tokens
 │   ├── {error,global-error,loading,not-found}.tsx
@@ -95,7 +94,6 @@ src/
 │   ├── marketing/            # Site nav + footer
 │   ├── dashboard/            # Sidebar + user menu + theme toggle
 │   ├── auth/                 # Auth form (react-hook-form + zod)
-│   ├── ai/                   # Chat widget (AI SDK useChat)
 │   ├── seo/                  # JSON-LD
 │   └── providers/            # PostHog
 ├── lib/
@@ -103,7 +101,6 @@ src/
 │   ├── db/                   # Drizzle schema + client + seed
 │   ├── payments/             # Razorpay, Stripe, plans, subscriptions, idempotency
 │   ├── email/                # Resend client + send helpers
-│   ├── ai/                   # AI SDK provider registry
 │   ├── analytics/            # PostHog server
 │   ├── security/             # CSP, rate limiting
 │   ├── auth.ts               # getCurrentUser / getCurrentProfile
@@ -122,7 +119,6 @@ src/
    (the `app` schema, profiles, subscriptions, organizations — rename columns
    or tables for your domain).
 4. **Email**: edit `src/emails/welcome.tsx` + `src/lib/email/send.ts`.
-5. **AI system prompt**: edit `src/app/api/chat/route.ts`.
 
 ## License
 

@@ -63,8 +63,8 @@ export default async function OpengraphImage() {
           maxWidth: "800px",
         }}
       >
-        A production-ready Next.js SaaS template — auth, billing, AI, and
-        security included.
+        A production-ready Next.js SaaS template — auth, billing, observability,
+        and security included.
       </p>
     </div>,
     { ...size },

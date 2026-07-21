@@ -8,7 +8,7 @@ export const siteConfig = {
   name: "Acme",
   title: "Acme — The modern way to run your business",
   description:
-    "Acme is a production-ready Next.js SaaS template. Authentication, billing, AI, observability, and a hardened security baseline — batteries included.",
+    "Acme is a production-ready Next.js SaaS template. Authentication, billing, observability, and a hardened security baseline — batteries included.",
   url: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
   locale: "en_US",
   keywords: [

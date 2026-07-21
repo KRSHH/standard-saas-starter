@@ -10,7 +10,6 @@ const nextConfig: NextConfig = {
       "react-hook-form",
       "@tanstack/react-query",
       "drizzle-orm",
-      "ai",
     ],
   },
   images: {

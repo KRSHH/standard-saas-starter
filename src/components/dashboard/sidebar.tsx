@@ -3,13 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { siteConfig } from "@/lib/site";
-import {
-  Building2,
-  LayoutDashboard,
-  CreditCard,
-  Settings,
-  Sparkles,
-} from "lucide-react";
+import { Building2, LayoutDashboard, CreditCard, Settings } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -57,18 +51,6 @@ export function Sidebar() {
           );
         })}
       </nav>
-
-      <div className="border-t p-3">
-        <div className="bg-sidebar-accent/50 flex items-center gap-3 rounded-md px-3 py-2">
-          <Sparkles className="text-sidebar-primary size-4" />
-          <div className="flex flex-col">
-            <span className="text-xs font-medium">AI Assistant</span>
-            <span className="text-sidebar-foreground/60 text-[11px]">
-              Coming soon
-            </span>
-          </div>
-        </div>
-      </div>
     </aside>
   );
 }

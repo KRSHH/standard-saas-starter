@@ -44,8 +44,8 @@ export function WelcomeEmail({
               </Text>
               <Text className="text-[14px] leading-[24px] text-gray-600">
                 Thanks for signing up. {siteConfig.name} gives you everything
-                you need to build and ship — auth, billing, AI, and a hardened
-                security baseline.
+                you need to build and ship — auth, billing, observability, and a
+                hardened security baseline.
               </Text>
               <Text className="text-[14px] leading-[24px] text-gray-600">
                 Your 14-day free trial has started. No credit card required.

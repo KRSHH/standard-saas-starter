@@ -24,7 +24,7 @@ export function buildCspHeader(nonce: string): string {
     `style-src 'self' 'nonce-${nonce}' 'unsafe-inline';`,
     `img-src 'self' blob: data: https:;`,
     `font-src 'self' data:;`,
-    `connect-src 'self' https://*.supabase.co wss://*.supabase.co ${posthogHost} ${sentryAllowed} https://api.openai.com https://api.anthropic.com;`,
+    `connect-src 'self' https://*.supabase.co wss://*.supabase.co ${posthogHost} ${sentryAllowed};`,
     `object-src 'none';`,
     `base-uri 'self';`,
     `form-action 'self';`,
