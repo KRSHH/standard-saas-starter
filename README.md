@@ -27,7 +27,9 @@ bun install
 
 # 2. Configure env
 cp .env.example .env.local
-# Fill in at least NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, DATABASE_URL
+# Fill in at least NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY,
+# SUPABASE_SERVICE_ROLE_KEY, DATABASE_URL from your Supabase project.
+# The app fail-fasts without Supabase — see docs/02-environment-variables.md.
 
 # 3. Apply schema + RLS migrations (tables, policies, triggers, storage bucket)
 bun run db:migrate
@@ -38,6 +40,11 @@ bun run db:seed
 # 5. Dev
 bun run dev
 ```
+
+> **Env model:** `.env.local` is the only file you need locally (gitignored).
+> Preview/staging/production get their values from the hosting platform's
+> `process.env` — never from committed files. Full reference:
+> [docs/02-environment-variables.md](./docs/02-environment-variables.md).
 
 ## Scripts
 
@@ -59,6 +66,15 @@ bun run dev
 > **Production rate limiting:** configure `UPSTASH_REDIS_REST_URL` and
 > `UPSTASH_REDIS_REST_TOKEN`. The in-memory limiter is development-only;
 > production intentionally fails closed when distributed storage is missing.
+
+## Documentation
+
+In-depth guides live in [`docs/`](./docs/README.md). Start there for setup,
+configuration, and deployment:
+
+- [**Getting Started**](./docs/01-getting-started.md) — clone to running dev server.
+- [**Environment Variables**](./docs/02-environment-variables.md) — every var, what it does, how to configure it across local/preview/staging/production.
+- [Database](./docs/03-database.md) · [Auth](./docs/04-authentication.md) · [Billing](./docs/05-billing.md) · [Email & Notifications](./docs/06-email-notifications.md) · [Analytics & Errors](./docs/07-analytics-errors.md) · [Security](./docs/08-security.md) · [Testing](./docs/09-testing.md) · [Deployment](./docs/10-deployment.md) · [Architecture](./docs/11-architecture.md)
 
 ## Structure
 
