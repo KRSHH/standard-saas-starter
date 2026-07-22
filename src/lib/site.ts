@@ -1,7 +1,10 @@
-import { env } from "@/lib/env";
-
 // Central site config — single source of truth for SEO + branding.
-// Brand values are env-driven so the template ships without hard-coded names.
+//
+// Reads NEXT_PUBLIC_* directly (not via the typed env schema) because this
+// module is imported by edge bundles (opengraph-image, manifest, sitemap) and
+// dragging @t3-oss/env-nextjs + zod into those blew the 1 MB edge limit.
+// These are all public vars with sensible defaults; server-secret validation
+// stays in src/lib/env.ts for server code.
 
 function trimmedUrl(value: string | undefined): string | undefined {
   if (!value) return undefined;
@@ -12,9 +15,9 @@ function trimmedUrl(value: string | undefined): string | undefined {
   }
 }
 
-const name = env.NEXT_PUBLIC_APP_NAME;
-const twitter = trimmedUrl(env.NEXT_PUBLIC_TWITTER_URL);
-const github = trimmedUrl(env.NEXT_PUBLIC_GITHUB_URL);
+const name = process.env.NEXT_PUBLIC_APP_NAME || "Acme";
+const twitter = trimmedUrl(process.env.NEXT_PUBLIC_TWITTER_URL);
+const github = trimmedUrl(process.env.NEXT_PUBLIC_GITHUB_URL);
 
 const externalLinks = { twitter, github } as const;
 
@@ -22,7 +25,7 @@ export const siteConfig = {
   name,
   title: `${name} — The modern way to run your business`,
   description: `${name} is a production-ready Next.js SaaS template. Authentication, billing, observability, and a hardened security baseline — batteries included.`,
-  url: env.NEXT_PUBLIC_APP_URL,
+  url: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
   locale: "en_US",
   keywords: [
     "Next.js template",
