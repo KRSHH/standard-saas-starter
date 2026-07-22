@@ -71,18 +71,18 @@ Grouped by feature area. Each entry shows:
 
 Legend:
 
-- 🟢 **Required** — app throws on first use if missing.
-- 🟡 **Optional** — feature degrades gracefully (lazy init, no-op, or hidden UI).
-- 🌐 **Public** — `NEXT_PUBLIC_` prefix; inlined into the browser bundle at build time.
+- **Required** — app throws on first use if missing.
+- **Optional** — feature degrades gracefully (lazy init, no-op, or hidden UI).
+- **Public** — `NEXT_PUBLIC_` prefix; inlined into the browser bundle at build time.
 
 ### App identity
 
-| Variable                  | Status | Read by                                      | Controls                                                                                                                                         |
-| ------------------------- | ------ | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `NEXT_PUBLIC_APP_URL`     | 🟡 🌐  | `src/lib/site.ts`, `src/lib/auth/actions.ts` | Canonical origin (no trailing slash). Sitemap, canonical URLs, OG metadata, JSON-LD, auth redirect targets. Defaults to `http://localhost:3000`. |
-| `NEXT_PUBLIC_APP_NAME`    | 🟡 🌐  | `src/lib/site.ts`                            | Product name. `<title>`, manifest, email branding, logo monogram. Defaults to `Acme`.                                                            |
-| `NEXT_PUBLIC_TWITTER_URL` | 🟡 🌐  | `src/lib/site.ts`                            | Optional. Added to JSON-LD `sameAs` + footer when set.                                                                                           |
-| `NEXT_PUBLIC_GITHUB_URL`  | 🟡 🌐  | `src/lib/site.ts`                            | Optional. Added to JSON-LD `sameAs` + footer when set.                                                                                           |
+| Variable                  | Status           | Read by                                      | Controls                                                                                                                                         |
+| ------------------------- | ---------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `NEXT_PUBLIC_APP_URL`     | Optional, Public | `src/lib/site.ts`, `src/lib/auth/actions.ts` | Canonical origin (no trailing slash). Sitemap, canonical URLs, OG metadata, JSON-LD, auth redirect targets. Defaults to `http://localhost:3000`. |
+| `NEXT_PUBLIC_APP_NAME`    | Optional, Public | `src/lib/site.ts`                            | Product name. `<title>`, manifest, email branding, logo monogram. Defaults to `Acme`.                                                            |
+| `NEXT_PUBLIC_TWITTER_URL` | Optional, Public | `src/lib/site.ts`                            | Optional. Added to JSON-LD `sameAs` + footer when set.                                                                                           |
+| `NEXT_PUBLIC_GITHUB_URL`  | Optional, Public | `src/lib/site.ts`                            | Optional. Added to JSON-LD `sameAs` + footer when set.                                                                                           |
 
 **Production setup:** set `NEXT_PUBLIC_APP_URL` to your real origin
 (e.g. `https://yourapp.com`) and `NEXT_PUBLIC_APP_NAME` to your brand. These
@@ -91,12 +91,12 @@ auth redirects.
 
 ### Supabase (Auth + Postgres + Storage)
 
-| Variable                        | Status      | Read by                                                                            | Controls                                                                                                                                                              |
-| ------------------------------- | ----------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`      | 🟢 🌐       | `src/lib/env.ts` → `supabase/{server,client}.ts`, `proxy.ts`                       | Your Supabase project URL. Used by both server and browser clients.                                                                                                   |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | 🟢 🌐       | `src/lib/env.ts` → `supabase/{server,client}.ts`, `proxy.ts`                       | The anon/public key. Subject to RLS — safe for the browser.                                                                                                           |
-| `SUPABASE_SERVICE_ROLE_KEY`     | 🟡 (secret) | `src/lib/supabase/admin.ts`, `src/lib/notifications/tokens.ts` (dev fallback only) | Service-role key. **Bypasses RLS.** Used by webhooks, admin actions (account deletion), and audit logging. NEVER expose to the browser or prefix with `NEXT_PUBLIC_`. |
-| `DATABASE_URL`                  | 🟢          | `src/db/index.ts`, `drizzle.config.ts`                                             | Postgres connection string for Drizzle.                                                                                                                               |
+| Variable                        | Status            | Read by                                                                            | Controls                                                                                                                                                              |
+| ------------------------------- | ----------------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Required, Public  | `src/lib/env.ts` → `supabase/{server,client}.ts`, `proxy.ts`                       | Your Supabase project URL. Used by both server and browser clients.                                                                                                   |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Required, Public  | `src/lib/env.ts` → `supabase/{server,client}.ts`, `proxy.ts`                       | The anon/public key. Subject to RLS — safe for the browser.                                                                                                           |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Optional (server) | `src/lib/supabase/admin.ts`, `src/lib/notifications/tokens.ts` (dev fallback only) | Service-role key. **Bypasses RLS.** Used by webhooks, admin actions (account deletion), and audit logging. NEVER expose to the browser or prefix with `NEXT_PUBLIC_`. |
+| `DATABASE_URL`                  | Required          | `src/db/index.ts`, `drizzle.config.ts`                                             | Postgres connection string for Drizzle.                                                                                                                               |
 
 > **Why `NEXT_PUBLIC_SUPABASE_URL` throws at startup:** `src/proxy.ts`
 > (middleware) runs on every request and calls `getPublicSupabaseEnv()` →
@@ -112,9 +112,9 @@ auth redirects.
 
 ### Database connection
 
-| Variable       | Status | Read by           | Controls                                                                                        |
-| -------------- | ------ | ----------------- | ----------------------------------------------------------------------------------------------- |
-| `DATABASE_URL` | 🟢     | `src/db/index.ts` | The Drizzle `postgres-js` connection. Single connection, `prepare: false` (pgBouncer-friendly). |
+| Variable       | Status   | Read by           | Controls                                                                                        |
+| -------------- | -------- | ----------------- | ----------------------------------------------------------------------------------------------- |
+| `DATABASE_URL` | Required | `src/db/index.ts` | The Drizzle `postgres-js` connection. Single connection, `prepare: false` (pgBouncer-friendly). |
 
 - **Local dev + migrations:** direct connection, port `5432`.
 - **Serverless production (Vercel):** session pooler (pgBouncer), port `6543`.
@@ -126,10 +126,10 @@ RLS-enforced Supabase SSR client. See [Database](./03-database.md).
 
 ### Rate limiting (Upstash)
 
-| Variable                   | Status       | Read by                          | Controls                     |
-| -------------------------- | ------------ | -------------------------------- | ---------------------------- |
-| `UPSTASH_REDIS_REST_URL`   | 🟡 (prod 🟢) | `src/lib/security/rate-limit.ts` | Upstash Redis REST endpoint. |
-| `UPSTASH_REDIS_REST_TOKEN` | 🟡 (prod 🟢) | `src/lib/security/rate-limit.ts` | Upstash REST token.          |
+| Variable                   | Status                    | Read by                          | Controls                     |
+| -------------------------- | ------------------------- | -------------------------------- | ---------------------------- |
+| `UPSTASH_REDIS_REST_URL`   | Optional (prod: Required) | `src/lib/security/rate-limit.ts` | Upstash Redis REST endpoint. |
+| `UPSTASH_REDIS_REST_TOKEN` | Optional (prod: Required) | `src/lib/security/rate-limit.ts` | Upstash REST token.          |
 
 **Behavior:** when both are set, rate limiting is distributed (works across
 multiple serverless instances). When neither is set:
@@ -142,13 +142,13 @@ See [Security → Rate limiting](./08-security.md#rate-limiting).
 
 ### Razorpay (optional — popular in India)
 
-| Variable                   | Status | Read by                        | Controls                                  |
-| -------------------------- | ------ | ------------------------------ | ----------------------------------------- |
-| `RAZORPAY_KEY_ID`          | 🟡     | `src/lib/payments/razorpay.ts` | Server API key.                           |
-| `RAZORPAY_KEY_SECRET`      | 🟡     | `src/lib/payments/razorpay.ts` | Server API secret.                        |
-| `RAZORPAY_WEBHOOK_SECRET`  | 🟡     | `src/lib/payments/razorpay.ts` | HMAC secret for `/api/webhooks/razorpay`. |
-| `RAZORPAY_STARTER_PLAN_ID` | 🟡     | `src/lib/payments/plans.ts`    | Plan id for the Starter tier.             |
-| `RAZORPAY_PRO_PLAN_ID`     | 🟡     | `src/lib/payments/plans.ts`    | Plan id for the Pro tier.                 |
+| Variable                   | Status   | Read by                        | Controls                                  |
+| -------------------------- | -------- | ------------------------------ | ----------------------------------------- |
+| `RAZORPAY_KEY_ID`          | Optional | `src/lib/payments/razorpay.ts` | Server API key.                           |
+| `RAZORPAY_KEY_SECRET`      | Optional | `src/lib/payments/razorpay.ts` | Server API secret.                        |
+| `RAZORPAY_WEBHOOK_SECRET`  | Optional | `src/lib/payments/razorpay.ts` | HMAC secret for `/api/webhooks/razorpay`. |
+| `RAZORPAY_STARTER_PLAN_ID` | Optional | `src/lib/payments/plans.ts`    | Plan id for the Starter tier.             |
+| `RAZORPAY_PRO_PLAN_ID`     | Optional | `src/lib/payments/plans.ts`    | Plan id for the Pro tier.                 |
 
 **How to get the values:** Razorpay Dashboard → **Settings → API Keys**
 (key id + secret), **→ Webhooks** (create one for
@@ -160,12 +160,12 @@ See [Billing](./05-billing.md).
 
 ### Stripe (global payments)
 
-| Variable                  | Status | Read by                                | Controls                                           |
-| ------------------------- | ------ | -------------------------------------- | -------------------------------------------------- |
-| `STRIPE_SECRET_KEY`       | 🟡     | `src/lib/payments/stripe.ts`           | Server secret key (`sk_test_...` / `sk_live_...`). |
-| `STRIPE_WEBHOOK_SECRET`   | 🟡     | `src/app/api/webhooks/stripe/route.ts` | Signing secret for the Stripe webhook endpoint.    |
-| `STRIPE_STARTER_PRICE_ID` | 🟡     | `src/lib/payments/plans.ts`            | Price id for the Starter tier.                     |
-| `STRIPE_PRO_PRICE_ID`     | 🟡     | `src/lib/payments/plans.ts`            | Price id for the Pro tier.                         |
+| Variable                  | Status   | Read by                                | Controls                                           |
+| ------------------------- | -------- | -------------------------------------- | -------------------------------------------------- |
+| `STRIPE_SECRET_KEY`       | Optional | `src/lib/payments/stripe.ts`           | Server secret key (`sk_test_...` / `sk_live_...`). |
+| `STRIPE_WEBHOOK_SECRET`   | Optional | `src/app/api/webhooks/stripe/route.ts` | Signing secret for the Stripe webhook endpoint.    |
+| `STRIPE_STARTER_PRICE_ID` | Optional | `src/lib/payments/plans.ts`            | Price id for the Starter tier.                     |
+| `STRIPE_PRO_PRICE_ID`     | Optional | `src/lib/payments/plans.ts`            | Price id for the Pro tier.                         |
 
 **How to get the values:** Stripe Dashboard → **Developers → API keys**
 (secret + publishable), **→ Developers → Webhooks** (add an endpoint for
@@ -176,13 +176,13 @@ Lazily initialized. See [Billing](./05-billing.md).
 
 ### Email (Resend)
 
-| Variable                           | Status       | Read by                                | Controls                                                                                                                      |
-| ---------------------------------- | ------------ | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `RESEND_API_KEY`                   | 🟡           | `src/lib/email/client.ts`              | Resend API key (`re_...`).                                                                                                    |
-| `EMAIL_FROM`                       | 🟡           | `src/lib/email/client.ts`              | Sender address for transactional email. Must be on a verified domain (or the Resend sandbox `onboarding@resend.dev` for dev). |
-| `EMAIL_REPLY_TO`                   | 🟡           | `src/lib/email/client.ts`              | Reply-To address.                                                                                                             |
-| `RESEND_WEBHOOK_SECRET`            | 🟡           | `src/app/api/webhooks/resend/route.ts` | Signing secret for the Resend webhook (bounce/complaint/delivery events).                                                     |
-| `NOTIFICATIONS_UNSUBSCRIBE_SECRET` | 🟡 (prod 🟢) | `src/lib/notifications/tokens.ts`      | HMAC secret for stateless unsubscribe tokens. In dev it's derived automatically; in prod you should set it explicitly.        |
+| Variable                           | Status                    | Read by                                | Controls                                                                                                                      |
+| ---------------------------------- | ------------------------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `RESEND_API_KEY`                   | Optional                  | `src/lib/email/client.ts`              | Resend API key (`re_...`).                                                                                                    |
+| `EMAIL_FROM`                       | Optional                  | `src/lib/email/client.ts`              | Sender address for transactional email. Must be on a verified domain (or the Resend sandbox `onboarding@resend.dev` for dev). |
+| `EMAIL_REPLY_TO`                   | Optional                  | `src/lib/email/client.ts`              | Reply-To address.                                                                                                             |
+| `RESEND_WEBHOOK_SECRET`            | Optional                  | `src/app/api/webhooks/resend/route.ts` | Signing secret for the Resend webhook (bounce/complaint/delivery events).                                                     |
+| `NOTIFICATIONS_UNSUBSCRIBE_SECRET` | Optional (prod: Required) | `src/lib/notifications/tokens.ts`      | HMAC secret for stateless unsubscribe tokens. In dev it's derived automatically; in prod you should set it explicitly.        |
 
 **How to get the values:** Resend Dashboard → **API Keys** (create one),
 **→ Domains** (verify a domain to send from it), **→ Webhooks** (create one
@@ -193,10 +193,10 @@ See [Email & Notifications](./06-email-notifications.md).
 
 ### Analytics (PostHog)
 
-| Variable                   | Status | Read by                                                                                                  | Controls                                                                                                     |
-| -------------------------- | ------ | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `NEXT_PUBLIC_POSTHOG_KEY`  | 🟡 🌐  | `src/components/providers/posthog.tsx`, `src/lib/analytics/posthog-server.ts`                            | Project API key.                                                                                             |
-| `NEXT_PUBLIC_POSTHOG_HOST` | 🟡 🌐  | `src/components/providers/posthog.tsx`, `src/lib/analytics/posthog-server.ts`, `src/lib/security/csp.ts` | PostHog host (e.g. `https://app.posthog.com` or self-hosted). Also added to the CSP `connect-src` allowlist. |
+| Variable                   | Status           | Read by                                                                                                  | Controls                                                                                                     |
+| -------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `NEXT_PUBLIC_POSTHOG_KEY`  | Optional, Public | `src/components/providers/posthog.tsx`, `src/lib/analytics/posthog-server.ts`                            | Project API key.                                                                                             |
+| `NEXT_PUBLIC_POSTHOG_HOST` | Optional, Public | `src/components/providers/posthog.tsx`, `src/lib/analytics/posthog-server.ts`, `src/lib/security/csp.ts` | PostHog host (e.g. `https://app.posthog.com` or self-hosted). Also added to the CSP `connect-src` allowlist. |
 
 **How to get the values:** PostHog → **Project Settings** (API key + host).
 
@@ -206,12 +206,12 @@ initializing PostHog — analytics just doesn't run. See
 
 ### Error tracking (Sentry)
 
-| Variable                 | Status | Read by                                                           | Controls                                                                                                                              |
-| ------------------------ | ------ | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SENTRY_DSN` | 🟡 🌐  | `src/instrumentation-client.ts`, `sentry.{server,edge}.config.ts` | Project DSN. The client reads this public var (the client bundle can't see server vars). Sentry is disabled when unset.               |
-| `SENTRY_ORG`             | 🟡     | `next.config.ts` (build-time, via `withSentryConfig`)             | Sentry org slug — for source map uploads at build.                                                                                    |
-| `SENTRY_PROJECT`         | 🟡     | `next.config.ts` (build-time, via `withSentryConfig`)             | Sentry project slug.                                                                                                                  |
-| `SENTRY_AUTH_TOKEN`      | 🟡     | `next.config.ts` (build-time, via `withSentryConfig`)             | Auth token for source map uploads. When unset, `next.config.ts` skips the `withSentryConfig` wrapper entirely (local/CI stays quiet). |
+| Variable                 | Status           | Read by                                                           | Controls                                                                                                                              |
+| ------------------------ | ---------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SENTRY_DSN` | Optional, Public | `src/instrumentation-client.ts`, `sentry.{server,edge}.config.ts` | Project DSN. The client reads this public var (the client bundle can't see server vars). Sentry is disabled when unset.               |
+| `SENTRY_ORG`             | Optional         | `next.config.ts` (build-time, via `withSentryConfig`)             | Sentry org slug — for source map uploads at build.                                                                                    |
+| `SENTRY_PROJECT`         | Optional         | `next.config.ts` (build-time, via `withSentryConfig`)             | Sentry project slug.                                                                                                                  |
+| `SENTRY_AUTH_TOKEN`      | Optional         | `next.config.ts` (build-time, via `withSentryConfig`)             | Auth token for source map uploads. When unset, `next.config.ts` skips the `withSentryConfig` wrapper entirely (local/CI stays quiet). |
 
 > The server and edge configs also accept the legacy `SENTRY_DSN` as a fallback
 > (`process.env.SENTRY_DSN ?? process.env.NEXT_PUBLIC_SENTRY_DSN`), but new
@@ -221,9 +221,9 @@ See [Analytics & Errors](./07-analytics-errors.md).
 
 ### Bot protection (Cloudflare Turnstile — optional)
 
-| Variable                         | Status | Read by                                                        | Controls                                                                                                     |
-| -------------------------------- | ------ | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | 🟡 🌐  | `src/components/auth/turnstile.tsx`, `src/lib/security/csp.ts` | Site key. When set, the Turnstile widget renders on sign-in/sign-up and the CSP allows the Turnstile script. |
+| Variable                         | Status           | Read by                                                        | Controls                                                                                                     |
+| -------------------------------- | ---------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Optional, Public | `src/components/auth/turnstile.tsx`, `src/lib/security/csp.ts` | Site key. When set, the Turnstile widget renders on sign-in/sign-up and the CSP allows the Turnstile script. |
 
 **Opt-in.** When the site key is unset, the widget renders nothing and the
 CSP omits the Turnstile origins — forms work zero-config. When set, you must

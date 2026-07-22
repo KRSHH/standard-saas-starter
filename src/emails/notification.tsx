@@ -74,7 +74,7 @@ export function NotificationEmail({
               </Text>
             ) : null}
             <Text className="text-[12px] leading-[20px] text-[#8895a7]">
-              © {year} {siteConfig.name}
+              &copy; {year} {siteConfig.name}
             </Text>
           </Container>
         </Body>

@@ -1,3 +1,5 @@
+import { Check } from "lucide-react";
+
 import { buildMetadata } from "@/lib/seo";
 import { PLANS } from "@/lib/payments/plans";
 
@@ -64,7 +66,10 @@ function PlanCard({
       </div>
       <ul className="text-muted-foreground flex flex-col gap-3 text-sm">
         {plan.features.map((f) => (
-          <li key={f}>✓ {f}</li>
+          <li key={f} className="flex items-center gap-2">
+            <Check className="text-primary size-4 shrink-0" />
+            {f}
+          </li>
         ))}
       </ul>
     </div>

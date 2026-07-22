@@ -100,7 +100,7 @@ export function SiteFooter() {
           ) : null}
         </nav>
         <p className="text-muted-foreground text-xs">
-          © {new Date().getFullYear()} {siteConfig.name}.
+          &copy; {new Date().getFullYear()} {siteConfig.name}.
         </p>
       </div>
     </footer>

@@ -39,12 +39,12 @@ serverless functions (each function invocation gets one connection).
 The template uses three different clients depending on context. Understanding
 which is which is the key to the whole security model.
 
-| Client           | File                         | Role                         | RLS         | Where used                                                         |
-| ---------------- | ---------------------------- | ---------------------------- | ----------- | ------------------------------------------------------------------ |
-| **Server**       | `src/lib/supabase/server.ts` | `authenticated` (user's JWT) | ✅ Enforced | Server Components, Route Handlers, Server Actions, middleware.     |
-| **Browser**      | `src/lib/supabase/client.ts` | `authenticated` (user's JWT) | ✅ Enforced | Client Components.                                                 |
-| **Admin**        | `src/lib/supabase/admin.ts`  | `service_role`               | ❌ Bypassed | Webhooks, system actions, audit logging. Server-only.              |
-| **Drizzle `db`** | `src/db/index.ts`            | `postgres`                   | ❌ Bypassed | Server-authoritative writes (subscriptions, notifications, audit). |
+| Client           | File                         | Role                         | RLS      | Where used                                                         |
+| ---------------- | ---------------------------- | ---------------------------- | -------- | ------------------------------------------------------------------ |
+| **Server**       | `src/lib/supabase/server.ts` | `authenticated` (user's JWT) | Enforced | Server Components, Route Handlers, Server Actions, middleware.     |
+| **Browser**      | `src/lib/supabase/client.ts` | `authenticated` (user's JWT) | Enforced | Client Components.                                                 |
+| **Admin**        | `src/lib/supabase/admin.ts`  | `service_role`               | Bypassed | Webhooks, system actions, audit logging. Server-only.              |
+| **Drizzle `db`** | `src/db/index.ts`            | `postgres`                   | Bypassed | Server-authoritative writes (subscriptions, notifications, audit). |
 
 The server and browser clients use the **anon key** and respect RLS — users
 can only touch their own rows. The admin client uses the **service-role key**

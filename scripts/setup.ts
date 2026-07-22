@@ -133,7 +133,7 @@ console.log(`\n${bold("Next.js SaaS Template — setup")}\n`);
 
 if (!existsSync(examplePath)) {
   console.error(
-    `${red("✗")} .env.example not found next to package.json — run this from the repo root.`,
+    `${red("X")} .env.example not found next to package.json — run this from the repo root.`,
   );
   process.exit(1);
 }
@@ -141,10 +141,10 @@ if (!existsSync(examplePath)) {
 // 1. Ensure .env.local exists.
 if (!existsSync(envPath)) {
   copyFileSync(examplePath, envPath);
-  console.log(`${green("✓")} Created ${bold(".env.local")} from .env.example`);
+  console.log(`${green("OK")} Created ${bold(".env.local")} from .env.example`);
 } else {
   console.log(
-    `${green("✓")} ${bold(".env.local")} already exists (left untouched)`,
+    `${green("OK")} ${bold(".env.local")} already exists (left untouched)`,
   );
 }
 
@@ -156,10 +156,10 @@ function report(services: Service[]): number {
   for (const svc of services) {
     const unset = svc.vars.filter((v) => !isConfigured(env[v]));
     if (unset.length === 0) {
-      console.log(`  ${green("●")} ${svc.name}`);
+      console.log(`  ${green("+")} ${svc.name}`);
     } else {
       missing++;
-      console.log(`  ${yellow("○")} ${svc.name} ${dim(`— ${svc.note}`)}`);
+      console.log(`  ${yellow("-")} ${svc.name} ${dim(`— ${svc.note}`)}`);
       for (const v of unset) console.log(`      ${dim(`missing ${v}`)}`);
     }
   }
