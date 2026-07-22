@@ -20,6 +20,11 @@ export async function proxy(request: NextRequest) {
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
     !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   ) {
+    // /api/health doesn't need Supabase — let it through so deploys can
+    // still be diagnosed when env is missing.
+    if (request.nextUrl.pathname.startsWith("/api/health")) {
+      return NextResponse.next();
+    }
     return missingEnvResponse();
   }
 

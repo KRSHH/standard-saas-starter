@@ -38,6 +38,7 @@ const PLACEHOLDER_PATTERNS = [
   /^(rzp_test_)?xxx$/i,
   /^(sk_test_|pk_test_|whsec_|re_|phc_|phx_|plan_|price_|sntrys_)?xxx$/i,
   /^https:\/\/xxx@/i,
+  /^0x4AAAAAA/i, // Turnstile example keys from .env.example
 ];
 
 function parseEnvFile(path: string): Record<string, string> {
@@ -129,6 +130,13 @@ const OPTIONAL: Service[] = [
 // ---------- run ----------
 
 console.log(`\n${bold("Next.js SaaS Template — setup")}\n`);
+
+if (!existsSync(examplePath)) {
+  console.error(
+    `${red("✗")} .env.example not found next to package.json — run this from the repo root.`,
+  );
+  process.exit(1);
+}
 
 // 1. Ensure .env.local exists.
 if (!existsSync(envPath)) {
