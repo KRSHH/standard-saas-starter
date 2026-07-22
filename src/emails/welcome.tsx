@@ -66,7 +66,7 @@ export function WelcomeEmail({
                 email.
               </Text>
               <Text className="text-[12px] leading-[20px] text-gray-500">
-                © {new Date().getFullYear()} {siteConfig.name}.{" "}
+                &copy; {new Date().getFullYear()} {siteConfig.name}.{" "}
                 <Link
                   href={siteConfig.url}
                   className="text-gray-500 no-underline"

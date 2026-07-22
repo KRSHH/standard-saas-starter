@@ -35,7 +35,7 @@ export function LegalArticle({ children }: { children: React.ReactNode }) {
     <article className={cn(...proseClasses)}>
       {children}
       <footer className="text-muted-foreground border-t pt-6 text-sm">
-        © {new Date().getFullYear()} {siteConfig.name}
+        &copy; {new Date().getFullYear()} {siteConfig.name}
       </footer>
     </article>
   );

@@ -39,7 +39,7 @@ async function seed() {
         target: profiles.id,
         set: { email: p.email, fullName: p.fullName },
       });
-    console.log(`  ✓ profile ${p.email}`);
+    console.log(`  OK profile ${p.email}`);
 
     const plan = PLANS[p.planSlug];
     await db
@@ -57,7 +57,7 @@ async function seed() {
         ),
       })
       .onConflictDoNothing();
-    console.log(`  ✓ subscription (${plan.slug})`);
+    console.log(`  OK subscription (${plan.slug})`);
   }
 
   await db
@@ -70,7 +70,7 @@ async function seed() {
       description: "Building the future of developer tools.",
     })
     .onConflictDoNothing({ target: organizations.slug });
-  console.log("  ✓ organization: Acme Labs");
+  console.log("  OK organization: Acme Labs");
 
   console.log("Done.");
   process.exit(0);

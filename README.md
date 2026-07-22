@@ -38,17 +38,17 @@
 
 ## Features
 
-- 🔐 **Complete auth lifecycle** — sign-up with email verification, sign-in, forgot/reset password, change email + password with reauthentication, OAuth account linking/unlinking, account deletion, and optional [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/) bot protection. Cookie-based PKCE via [Supabase SSR](https://supabase.com/docs/guides/auth/server-side).
-- 🛡️ **Security baseline by default** — strict CSP with per-request nonces, RLS on every table, revoked default privileges, webhook signature verification + idempotency, rate limiting, and the full security-header bundle. See [Security model](#security-model).
-- 💳 **Server-authoritative billing** — [Stripe](https://stripe.com) and [Razorpay](https://razorpay.com) webhook handlers are the _only_ writers of subscription state; the client never trusts itself. Plans and trials configured in one file. (Checkout UI is intentionally a stub — wire it to your pricing decisions.)
-- 🔔 **Notifications, both channels** — provider-neutral layer with in-app + email delivery, per-category preferences, HMAC-signed one-click unsubscribe (no DB lookup), and Resend bounce/complaint suppression.
-- 📁 **Private file uploads** — signed upload URLs, per-user path namespacing, MIME + size + quota enforcement, private Supabase Storage bucket. Bytes never transit your server.
-- 📜 **Append-only audit log** — auth changes, billing events, destructive operations, and notification state changes all write sanitized records.
-- 📧 **Transactional email** — [Resend](https://resend.com) + [react-email](https://react.email) templates with a local preview server (`bun run email:dev`).
-- 📊 **Observability** — [PostHog](https://posthog.com) (web + server), [Sentry](https://sentry.io) (client + server + edge, replays, source-map upload), and a `/api/health` endpoint that reports DB status plus which integrations are configured.
-- 🔎 **SEO plumbing** — metadata defaults, dynamic OG image, JSON-LD, sitemap, robots, PWA manifest, canonical URLs, and Privacy/Terms/Cookies/Contact pages with placeholder copy.
-- 🧪 **Tests that run on clone** — [Vitest](https://vitest.dev) unit tests + [Playwright](https://playwright.dev) E2E, all green in CI with zero external services.
-- ⚡ **DX** — [Bun](https://bun.sh), Turbopack, strict TypeScript, ESLint 9 flat config, Prettier with Tailwind class sorting, `bun run setup` config doctor, devcontainer for Codespaces, VS Code settings, Dependabot.
+- **Complete auth lifecycle** — sign-up with email verification, sign-in, forgot/reset password, change email + password with reauthentication, OAuth account linking/unlinking, account deletion, and optional [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/) bot protection. Cookie-based PKCE via [Supabase SSR](https://supabase.com/docs/guides/auth/server-side).
+- **Security baseline by default** — strict CSP with per-request nonces, RLS on every table, revoked default privileges, webhook signature verification + idempotency, rate limiting, and the full security-header bundle. See [Security model](#security-model).
+- **Server-authoritative billing** — [Stripe](https://stripe.com) and [Razorpay](https://razorpay.com) webhook handlers are the _only_ writers of subscription state; the client never trusts itself. Plans and trials configured in one file. (Checkout UI is intentionally a stub — wire it to your pricing decisions.)
+- **Notifications, both channels** — provider-neutral layer with in-app + email delivery, per-category preferences, HMAC-signed one-click unsubscribe (no DB lookup), and Resend bounce/complaint suppression.
+- **Private file uploads** — signed upload URLs, per-user path namespacing, MIME + size + quota enforcement, private Supabase Storage bucket. Bytes never transit your server.
+- **Append-only audit log** — auth changes, billing events, destructive operations, and notification state changes all write sanitized records.
+- **Transactional email** — [Resend](https://resend.com) + [react-email](https://react.email) templates with a local preview server (`bun run email:dev`).
+- **Observability** — [PostHog](https://posthog.com) (web + server), [Sentry](https://sentry.io) (client + server + edge, replays, source-map upload), and a `/api/health` endpoint that reports DB status plus which integrations are configured.
+- **SEO plumbing** — metadata defaults, dynamic OG image, JSON-LD, sitemap, robots, PWA manifest, canonical URLs, and Privacy/Terms/Cookies/Contact pages with placeholder copy.
+- **Tests that run on clone** — [Vitest](https://vitest.dev) unit tests + [Playwright](https://playwright.dev) E2E, all green in CI with zero external services.
+- **DX** — [Bun](https://bun.sh), Turbopack, strict TypeScript, ESLint 9 flat config, Prettier with Tailwind class sorting, `bun run setup` config doctor, devcontainer for Codespaces, VS Code settings, Dependabot.
 
 ## Tech stack
 
@@ -245,11 +245,11 @@ One vendor covers auth + Postgres + storage with row-level security spanning all
 
 PRs welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for setup and guidelines — the short version: keep it lean, keep it plug-and-play, and run `bun run check && bun run test` before pushing.
 
-- 🐛 [Report a bug](https://github.com/KRSHH/nextjs-template/issues/new?template=bug_report.yml)
-- 💡 [Request a feature](https://github.com/KRSHH/nextjs-template/issues/new?template=feature_request.yml)
-- 💬 [Discussions](https://github.com/KRSHH/nextjs-template/discussions)
+- [Report a bug](https://github.com/KRSHH/nextjs-template/issues/new?template=bug_report.yml)
+- [Request a feature](https://github.com/KRSHH/nextjs-template/issues/new?template=feature_request.yml)
+- [Discussions](https://github.com/KRSHH/nextjs-template/discussions)
 
-If this template saves you time, a ⭐ helps others find it.
+If this template saves you time, a star helps others find it.
 
 <details>
   <summary><kbd>Star History</kbd></summary>

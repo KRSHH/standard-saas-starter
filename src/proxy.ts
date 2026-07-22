@@ -135,7 +135,7 @@ function missingEnvResponse(): NextResponse {
   pre{padding:.75rem 1rem;overflow-x:auto}
   h1{font-size:1.25rem} a{color:#7dd3fc}
 </style></head><body>
-  <h1>⚙️ Almost there — Supabase env vars are missing</h1>
+  <h1>Almost there — Supabase env vars are missing</h1>
   <p>This template needs <code>NEXT_PUBLIC_SUPABASE_URL</code> and
      <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> in <code>.env.local</code>.</p>
   <pre>bun run setup   # creates .env.local + shows what's missing</pre>

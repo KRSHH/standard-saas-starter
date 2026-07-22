@@ -107,12 +107,12 @@ The template keeps client components small and pushes logic to server actions
 
 ## Data access patterns
 
-| Context                                   | Client                                        | RLS         |
-| ----------------------------------------- | --------------------------------------------- | ----------- |
-| Server Component / Action / Route Handler | Supabase server client (`createClient()`)     | ✅ Enforced |
-| Client Component                          | Supabase browser client (`createClient()`)    | ✅ Enforced |
-| Webhook / system action                   | Supabase admin client (`createAdminClient()`) | ❌ Bypassed |
-| Server-authoritative write (typed)        | Drizzle `db` (`@/db`)                         | ❌ Bypassed |
+| Context                                   | Client                                        | RLS      |
+| ----------------------------------------- | --------------------------------------------- | -------- |
+| Server Component / Action / Route Handler | Supabase server client (`createClient()`)     | Enforced |
+| Client Component                          | Supabase browser client (`createClient()`)    | Enforced |
+| Webhook / system action                   | Supabase admin client (`createAdminClient()`) | Bypassed |
+| Server-authoritative write (typed)        | Drizzle `db` (`@/db`)                         | Bypassed |
 
 > **Rule:** client components never import the admin client or the Drizzle
 > `db`. Both are server-only. The Drizzle writes and admin client run as
