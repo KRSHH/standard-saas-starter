@@ -14,6 +14,20 @@ import { getPublicSupabaseEnv } from "@/lib/env";
  * Order matters: nonce first (so server components can read it), then session.
  */
 export async function proxy(request: NextRequest) {
+  // Fail helpfully, not with a raw 500: a fresh clone without .env.local
+  // would otherwise crash on every route deep inside the session refresh.
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ) {
+    // /api/health doesn't need Supabase — let it through so deploys can
+    // still be diagnosed when env is missing.
+    if (request.nextUrl.pathname.startsWith("/api/health")) {
+      return NextResponse.next();
+    }
+    return missingEnvResponse();
+  }
+
   const nonce = generateNonce();
 
   // Build the request-headers snapshot with the nonce.
@@ -103,6 +117,37 @@ function applySecurityHeaders(res: NextResponse, csp: string) {
     "max-age=63072000; includeSubDomains; preload",
   );
   res.headers.set("X-DNS-Prefetch-Control", "on");
+}
+
+/**
+ * Setup guidance when Supabase env vars are missing. Full instructions in
+ * development; a terse 503 in production (never leak config state publicly).
+ */
+function missingEnvResponse(): NextResponse {
+  if (process.env.NODE_ENV !== "development") {
+    return new NextResponse("Service unavailable", { status: 503 });
+  }
+  const html = `<!doctype html>
+<html><head><title>Setup required</title><style>
+  body{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;max-width:44rem;
+       margin:4rem auto;padding:0 1rem;line-height:1.6;color:#e4e4e7;background:#09090b}
+  code,pre{background:#18181b;border:1px solid #27272a;border-radius:6px;padding:.15rem .4rem}
+  pre{padding:.75rem 1rem;overflow-x:auto}
+  h1{font-size:1.25rem} a{color:#7dd3fc}
+</style></head><body>
+  <h1>⚙️ Almost there — Supabase env vars are missing</h1>
+  <p>This template needs <code>NEXT_PUBLIC_SUPABASE_URL</code> and
+     <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> in <code>.env.local</code>.</p>
+  <pre>bun run setup   # creates .env.local + shows what's missing</pre>
+  <p>Grab both values from your
+     <a href="https://supabase.com/dashboard">Supabase dashboard</a> →
+     Project Settings → API, then restart <code>bun run dev</code>.</p>
+  <p>Full walkthrough: see the README's Quick start.</p>
+</body></html>`;
+  return new NextResponse(html, {
+    status: 503,
+    headers: { "content-type": "text/html; charset=utf-8" },
+  });
 }
 
 function generateNonce(): string {

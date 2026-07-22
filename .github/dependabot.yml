@@ -1,0 +1,25 @@
+# Keep dependencies and GitHub Actions current with low-noise, grouped PRs.
+version: 2
+updates:
+  # "bun" ecosystem (GA 2025) regenerates bun.lock — the npm updater would
+  # leave the lockfile stale and every PR would fail CI's frozen `bun ci`.
+  - package-ecosystem: "bun"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    labels:
+      - "dependencies"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "dependencies"

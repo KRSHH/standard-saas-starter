@@ -65,10 +65,10 @@ just works.
 Vercel lets you scope each env var to **Production**, **Preview**, or
 **Development**:
 
-| Scope | When it applies |
-|-------|-----------------|
-| Production | Merges to `main` / production deploys. |
-| Preview | PR deploys, branch deploys (non-production). |
+| Scope       | When it applies                               |
+| ----------- | --------------------------------------------- |
+| Production  | Merges to `main` / production deploys.        |
+| Preview     | PR deploys, branch deploys (non-production).  |
 | Development | Local `vercel dev` (pulls into `.env.local`). |
 
 Best practice:
@@ -212,6 +212,13 @@ Public vars are inlined at build. Redeploy after changing them.
 
 The webhook secret in your env doesn't match the one in the provider
 dashboard. Re-copy it. Also verify the URL is correct and reachable.
+
+### "Webhooks return 503 'Stripe/Resend is not configured'"
+
+The provider's `*_SECRET_KEY` / `*_WEBHOOK_SECRET` env var isn't set on the
+deploy. The handlers return a clean 503 (rather than a 500 crash) when a
+provider is unconfigured — set both the secret key and webhook secret and
+redeploy.
 
 ### "Rate limit throws in production"
 

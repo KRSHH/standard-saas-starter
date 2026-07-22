@@ -54,14 +54,36 @@ export function AuthForm({
   const [turnstileToken, setTurnstileToken] = React.useState<string | null>(
     null,
   );
-  const turnstileRequired = isSignUp && isTurnstileConfigured();
+  const [turnstileReset, setTurnstileReset] = React.useState(0);
+  // When Supabase captcha is enabled it enforces the token on EVERY auth
+  // call — sign-in included — so the widget must render on both forms.
+  const turnstileRequired = isTurnstileConfigured();
+
+  // Turnstile tokens are single-use and Supabase consumes them BEFORE
+  // checking credentials — after any failed attempt the widget must issue
+  // a fresh token or every retry fails with a captcha error.
+  const resetTurnstile = () => {
+    if (!turnstileRequired) return;
+    setTurnstileToken(null);
+    setTurnstileReset((n) => n + 1);
+  };
 
   const onSignIn = async (values: SignInValues) => {
+    if (turnstileRequired && !turnstileToken) {
+      toast.error("Please complete the bot check.");
+      return;
+    }
     setIsLoading(true);
     try {
       const supabase = createClient();
-      const { error } = await supabase.auth.signInWithPassword(values);
+      const { error } = await supabase.auth.signInWithPassword({
+        ...values,
+        ...(turnstileToken
+          ? { options: { captchaToken: turnstileToken } }
+          : {}),
+      });
       if (error) {
+        resetTurnstile();
         toast.error(error.message);
         return;
       }
@@ -92,6 +114,7 @@ export function AuthForm({
         },
       });
       if (error) {
+        resetTurnstile();
         toast.error(error.message);
         return;
       }
@@ -134,7 +157,10 @@ export function AuthForm({
           {...signUp.register("password")}
         />
         {turnstileRequired ? (
-          <TurnstileWidget onToken={setTurnstileToken} />
+          <TurnstileWidget
+            onToken={setTurnstileToken}
+            resetSignal={turnstileReset}
+          />
         ) : null}
         <SubmitButton isLoading={isLoading} label="Create account" />
       </form>
@@ -169,6 +195,12 @@ export function AuthForm({
       >
         Forgot password?
       </Link>
+      {turnstileRequired ? (
+        <TurnstileWidget
+          onToken={setTurnstileToken}
+          resetSignal={turnstileReset}
+        />
+      ) : null}
       <SubmitButton isLoading={isLoading} label="Sign in" />
     </form>
   );

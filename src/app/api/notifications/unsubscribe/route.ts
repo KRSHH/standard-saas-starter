@@ -63,6 +63,18 @@ async function applyUnsubscribe(
   ctx: ReturnType<typeof requestContext>,
 ): Promise<UnsubscribeResult> {
   if (!token) return { ok: false, status: 400, error: "Missing token." };
+  // Token verification fails closed in production without the HMAC secret —
+  // surface that as a clean 503 instead of an unhandled 500.
+  if (
+    process.env.NODE_ENV === "production" &&
+    !process.env.NOTIFICATIONS_UNSUBSCRIBE_SECRET
+  ) {
+    return {
+      ok: false,
+      status: 503,
+      error: "Unsubscribe is not configured. Please contact support.",
+    };
+  }
   const verified = verifyUnsubscribeToken(token);
   if (!verified.ok) {
     return {

@@ -35,8 +35,13 @@ declare global {
 
 export function TurnstileWidget({
   onToken,
+  resetSignal = 0,
 }: {
-  onToken: (token: string) => void;
+  /** Receives the challenge token, or null when it expires/errors. */
+  onToken: (token: string | null) => void;
+  /** Bump after a failed auth call — tokens are single-use, so the widget
+   *  must issue a fresh one before the user can retry. */
+  resetSignal?: number;
 }) {
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -48,12 +53,21 @@ export function TurnstileWidget({
     widgetIdRef.current = window.turnstile.render(containerRef.current, {
       sitekey: siteKey,
       callback: onToken,
+      "expired-callback": () => onToken(null),
+      "error-callback": () => onToken(null),
     });
   }, [siteKey, onToken]);
 
   React.useEffect(() => {
     renderWidget();
   }, [renderWidget]);
+
+  React.useEffect(() => {
+    if (resetSignal > 0 && widgetIdRef.current && window.turnstile) {
+      window.turnstile.reset(widgetIdRef.current);
+      onToken(null);
+    }
+  }, [resetSignal, onToken]);
 
   if (!siteKey) return null;
 

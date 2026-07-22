@@ -34,12 +34,12 @@ script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https: http:${isDev ? " 'uns
 
 ### Provider-specific allowlists
 
-| Provider | CSP directive | Added when |
-|----------|---------------|------------|
-| Supabase | `connect-src https://*.supabase.co wss://*.supabase.co` | Always (the app needs it). |
-| PostHog | `connect-src <POSTHOG_HOST>` | `NEXT_PUBLIC_POSTHOG_HOST` is set. |
-| Sentry | `connect-src https://*.sentry.io https://*.ingest.sentry.io` | Always. |
-| Razorpay | `frame-src https://js.razorpay.com` | Always (checkout iframe). |
+| Provider  | CSP directive                                                | Added when                               |
+| --------- | ------------------------------------------------------------ | ---------------------------------------- |
+| Supabase  | `connect-src https://*.supabase.co wss://*.supabase.co`      | Always (the app needs it).               |
+| PostHog   | `connect-src <POSTHOG_HOST>`                                 | `NEXT_PUBLIC_POSTHOG_HOST` is set.       |
+| Sentry    | `connect-src https://*.sentry.io https://*.ingest.sentry.io` | Always.                                  |
+| Razorpay  | `frame-src https://js.razorpay.com`                          | Always (checkout iframe).                |
 | Turnstile | `script-src` + `frame-src https://challenges.cloudflare.com` | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` is set. |
 
 > **Adding a new external service?** Add its origins to `buildCspHeader()` or
@@ -52,15 +52,15 @@ script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https: http:${isDev ? " 'uns
 
 Applied to every response in `src/proxy.ts`:
 
-| Header | Value | Purpose |
-|--------|-------|---------|
-| `Content-Security-Policy` | (per-request, see above) | Prevents XSS, injection. |
-| `X-Frame-Options` | `DENY` | Clickjacking (no iframing). |
-| `X-Content-Type-Options` | `nosniff` | MIME sniffing. |
-| `Referrer-Policy` | `strict-origin-when-cross-origin` | Limits referrer leakage. |
-| `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), interest-cohort=()` | Disables sensitive APIs + FLoC. |
-| `Strict-Transport-Security` | `max-age=63072000; includeSubDomains; preload` | Forces HTTPS. |
-| `X-DNS-Prefetch-Control` | `on` | Faster DNS for external resources. |
+| Header                      | Value                                                          | Purpose                            |
+| --------------------------- | -------------------------------------------------------------- | ---------------------------------- |
+| `Content-Security-Policy`   | (per-request, see above)                                       | Prevents XSS, injection.           |
+| `X-Frame-Options`           | `DENY`                                                         | Clickjacking (no iframing).        |
+| `X-Content-Type-Options`    | `nosniff`                                                      | MIME sniffing.                     |
+| `Referrer-Policy`           | `strict-origin-when-cross-origin`                              | Limits referrer leakage.           |
+| `Permissions-Policy`        | `camera=(), microphone=(), geolocation=(), interest-cohort=()` | Disables sensitive APIs + FLoC.    |
+| `Strict-Transport-Security` | `max-age=63072000; includeSubDomains; preload`                 | Forces HTTPS.                      |
+| `X-DNS-Prefetch-Control`    | `on`                                                           | Faster DNS for external resources. |
 
 ---
 
@@ -82,7 +82,10 @@ const { limited, headers } = await rateLimit(request, {
 });
 
 if (limited) {
-  return NextResponse.json({ error: "Too many requests" }, { status: 429, headers });
+  return NextResponse.json(
+    { error: "Too many requests" },
+    { status: 429, headers },
+  );
 }
 ```
 
@@ -91,12 +94,12 @@ Returns standard `RateLimit-*` headers (`Limit`, `Remaining`, `Reset`) +
 
 ### Behavior by environment
 
-| Environment | Upstash configured? | Behavior |
-|-------------|---------------------|----------|
-| Dev | No | In-memory limiter (per-process). |
-| Dev | Yes | Upstash (distributed). |
-| **Prod** | No | **Throws** (fails closed). |
-| Prod | Yes | Upstash. |
+| Environment | Upstash configured? | Behavior                         |
+| ----------- | ------------------- | -------------------------------- |
+| Dev         | No                  | In-memory limiter (per-process). |
+| Dev         | Yes                 | Upstash (distributed).           |
+| **Prod**    | No                  | **Throws** (fails closed).       |
+| Prod        | Yes                 | Upstash.                         |
 
 > **Why fail closed in prod?** An un-rate-limited production server is a
 > security hole (brute-force, abuse). If you deploy without Upstash, the
@@ -139,14 +142,15 @@ When unset, the widget renders nothing and the CSP omits Turnstile origins.
 ### Setup
 
 1. Create a site at [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/).
-2. Set env vars:
+2. Set the **site key** env var:
 
    ```dotenv
    NEXT_PUBLIC_TURNSTILE_SITE_KEY=0x4AAAAAAA...
-   TURNSTILE_SECRET_KEY=0x4AAAAAAB...
    ```
 
-3. Enable captcha in Supabase: **Auth → Settings → Bot & Abuse Protection**.
+3. In Supabase under **Auth → Settings → Bot & Abuse Protection**, paste the
+   **secret key** and enable captcha. Supabase verifies the token server-side,
+   so the template never reads `TURNSTILE_SECRET_KEY` from env.
 4. Done — the widget and verification are automatic.
 
 ---
@@ -223,7 +227,8 @@ const { limited, headers } = await rateLimit(request, {
   limit: 20,
   window: 60,
 });
-if (limited) return NextResponse.json({ error: "Rate limited" }, { status: 429, headers });
+if (limited)
+  return NextResponse.json({ error: "Rate limited" }, { status: 429, headers });
 ```
 
 ### Audit a new sensitive action

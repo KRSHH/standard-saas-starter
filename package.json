@@ -3,7 +3,39 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "description": "Production-grade Next.js SaaS starter — Supabase auth, Drizzle + Postgres RLS, Stripe & Razorpay billing, Resend email, PostHog, Sentry, strict CSP, Vitest + Playwright. Clone, configure, ship.",
+  "license": "MIT",
+  "author": "KRSHH",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KRSHH/nextjs-template.git"
+  },
+  "homepage": "https://github.com/KRSHH/nextjs-template#readme",
+  "bugs": {
+    "url": "https://github.com/KRSHH/nextjs-template/issues"
+  },
+  "keywords": [
+    "nextjs",
+    "nextjs-template",
+    "nextjs-boilerplate",
+    "saas-starter",
+    "saas-boilerplate",
+    "supabase",
+    "drizzle-orm",
+    "stripe",
+    "razorpay",
+    "tailwindcss",
+    "shadcn-ui",
+    "typescript",
+    "bun",
+    "postgresql",
+    "resend",
+    "posthog",
+    "sentry",
+    "saas-template"
+  ],
   "scripts": {
+    "setup": "bun scripts/setup.ts",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

@@ -32,11 +32,11 @@ their own signature verification).
 
 `src/lib/auth.ts`:
 
-| Helper | Returns | Redirects? |
-|--------|---------|------------|
-| `getCurrentUser()` | The Supabase `User` | Yes — to `/sign-in` if missing. |
-| `getCurrentUserOrNull()` | `User \| null` | No. |
-| `getCurrentProfile()` | The user's `profiles` row or null | Yes (via `getCurrentUser`). |
+| Helper                   | Returns                           | Redirects?                      |
+| ------------------------ | --------------------------------- | ------------------------------- |
+| `getCurrentUser()`       | The Supabase `User`               | Yes — to `/sign-in` if missing. |
+| `getCurrentUserOrNull()` | `User \| null`                    | No.                             |
+| `getCurrentProfile()`    | The user's `profiles` row or null | Yes (via `getCurrentUser`).     |
 
 Use `getCurrentUser()` at the top of any protected Server Component / Action.
 For Route Handlers that need a 401 JSON response (not a redirect), use the
@@ -110,13 +110,13 @@ password set.
 
 Server actions in `src/lib/auth/actions.ts`:
 
-| Action | What it does |
-|--------|--------------|
-| `setAvatarPath(path)` | Sets `profiles.avatar_url`. Re-verifies ownership (path must start with `${userId}/avatars/`). |
-| `updateProfile(fullName)` | Sets `profiles.full_name`. Validates length 1–200. |
-| `resendVerificationEmail()` | Resends the signup confirmation link. |
-| `deleteAccount()` | Permanently deletes the user via the admin client. Cascades app data. Audit-logs first. |
-| `unlinkOAuthIdentity(id)` | Removes an OAuth identity (see above). |
+| Action                      | What it does                                                                                   |
+| --------------------------- | ---------------------------------------------------------------------------------------------- |
+| `setAvatarPath(path)`       | Sets `profiles.avatar_url`. Re-verifies ownership (path must start with `${userId}/avatars/`). |
+| `updateProfile(fullName)`   | Sets `profiles.full_name`. Validates length 1–200.                                             |
+| `resendVerificationEmail()` | Resends the signup confirmation link.                                                          |
+| `deleteAccount()`           | Permanently deletes the user via the admin client. Cascades app data. Audit-logs first.        |
+| `unlinkOAuthIdentity(id)`   | Removes an OAuth identity (see above).                                                         |
 
 Every action records an audit entry **before** mutating. Destructive operations
 require the service-role admin client (the user's session can't delete their
@@ -126,10 +126,10 @@ require the service-role admin client (the user's session can't delete their
 
 ## Callback + sign-out routes
 
-| Route | Purpose |
-|-------|---------|
+| Route            | Purpose                                                                                   |
+| ---------------- | ----------------------------------------------------------------------------------------- |
 | `/auth/callback` | Handles the email-confirmation / OAuth redirect. Sets the session, then routes to `/app`. |
-| `/auth/sign-out` | Calls `signOut()`, clears cookies, redirects to `/`. |
+| `/auth/sign-out` | Calls `signOut()`, clears cookies, redirects to `/`.                                      |
 
 ---
 
@@ -137,12 +137,12 @@ require the service-role admin client (the user's session can't delete their
 
 These are **dashboard settings**, not env vars:
 
-| Setting | Where | What |
-|---------|------|------|
-| Email confirmation | Auth → Settings | On by default. Keep it on. |
-| Bot & Abuse Protection | Auth → Settings | Enable captcha if you use Turnstile. |
-| Redirect URLs | Auth → URL Configuration | Add `http://localhost:3000/auth/callback` (dev) + your prod origin. |
-| Providers | Auth → Providers | Enable Google/GitHub, add client id/secret from their consoles. |
+| Setting                | Where                    | What                                                                |
+| ---------------------- | ------------------------ | ------------------------------------------------------------------- |
+| Email confirmation     | Auth → Settings          | On by default. Keep it on.                                          |
+| Bot & Abuse Protection | Auth → Settings          | Enable captcha if you use Turnstile.                                |
+| Redirect URLs          | Auth → URL Configuration | Add `http://localhost:3000/auth/callback` (dev) + your prod origin. |
+| Providers              | Auth → Providers         | Enable Google/GitHub, add client id/secret from their consoles.     |
 
 ---
 
@@ -167,8 +167,11 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   // ...
 }
 ```

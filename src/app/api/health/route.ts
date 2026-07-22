@@ -31,5 +31,17 @@ export async function GET() {
     return NextResponse.json({ status: "unhealthy", checks }, { status: 503 });
   }
 
-  return NextResponse.json({ status: "healthy", checks });
+  // Which optional integrations this deploy has configured — booleans only,
+  // never values. Lets you verify env wiring right after a deploy.
+  const integrations = {
+    stripe: !!process.env.STRIPE_SECRET_KEY,
+    razorpay: !!process.env.RAZORPAY_KEY_ID,
+    resend: !!process.env.RESEND_API_KEY,
+    posthog: !!process.env.NEXT_PUBLIC_POSTHOG_KEY,
+    sentry: !!(process.env.NEXT_PUBLIC_SENTRY_DSN ?? process.env.SENTRY_DSN),
+    upstash: !!process.env.UPSTASH_REDIS_REST_URL,
+    turnstile: !!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+  };
+
+  return NextResponse.json({ status: "healthy", checks, integrations });
 }

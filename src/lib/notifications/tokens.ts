@@ -16,12 +16,18 @@ const ALG = "sha256";
 const TTL_SECONDS = 60 * 60 * 24 * 365; // 1 year — unsub links should be durable.
 
 function getSecret(): string {
-  return (
-    process.env.NOTIFICATIONS_UNSUBSCRIBE_SECRET ??
-    // Dev fallback — derived from the service role key if present, else a
-    // fixed dev secret. NEVER rely on this in production.
-    `dev-unsubscribe-${process.env.SUPABASE_SERVICE_ROLE_KEY ?? "insecure"}`
-  );
+  const secret = process.env.NOTIFICATIONS_UNSUBSCRIBE_SECRET;
+  if (secret) return secret;
+  // Fail closed in production — a guessable fallback would let anyone forge
+  // unsubscribe tokens for arbitrary users (mirrors the rate-limit policy).
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "NOTIFICATIONS_UNSUBSCRIBE_SECRET is required in production",
+    );
+  }
+  // Dev fallback — derived from the service role key if present, else a
+  // fixed dev secret. NEVER rely on this in production.
+  return `dev-unsubscribe-${process.env.SUPABASE_SERVICE_ROLE_KEY ?? "insecure"}`;
 }
 
 function b64url(input: Buffer | string): string {

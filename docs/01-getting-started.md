@@ -10,11 +10,11 @@ analytics) is optional and can be added later.
 
 ## Prerequisites
 
-| Requirement | Version | Why |
-|-------------|---------|-----|
-| Node.js | >= 20.9.0 | Next.js 16 runtime floor (see `package.json` `engines`). |
-| Bun | 1.3.0 (recommended) | The template pins `packageManager: bun@1.3.0`. npm/pnpm also work. |
-| A Supabase project | free tier is fine | Auth, Postgres, and Storage. Create one at [supabase.com](https://supabase.com). |
+| Requirement        | Version             | Why                                                                              |
+| ------------------ | ------------------- | -------------------------------------------------------------------------------- |
+| Node.js            | >= 20.9.0           | Next.js 16 runtime floor (see `package.json` `engines`).                         |
+| Bun                | 1.3.0 (recommended) | The template pins `packageManager: bun@1.3.0`. npm/pnpm also work.               |
+| A Supabase project | free tier is fine   | Auth, Postgres, and Storage. Create one at [supabase.com](https://supabase.com). |
 
 You don't need Stripe, Resend, PostHog, Sentry, or Upstash to start. Those are
 lazily-initialized — see [Environment Variables](./02-environment-variables.md).

@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -21,7 +22,17 @@ const nextConfig: NextConfig = {
     ],
   },
   // Path aliases (`@/`) resolve from tsconfig.json `paths` for Turbopack and webpack.
-  // Per-request security headers are applied in middleware.ts.
+  // Per-request security headers are applied in src/proxy.ts (Next 16 middleware).
 };
 
-export default nextConfig;
+// Source-map upload to Sentry only runs when an auth token is present
+// (real deploys). Local/CI builds without Sentry env stay untouched and quiet.
+export default process.env.SENTRY_AUTH_TOKEN
+  ? withSentryConfig(nextConfig, {
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      silent: true,
+      widenClientFileUpload: true,
+      disableLogger: true,
+    })
+  : nextConfig;

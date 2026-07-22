@@ -1,0 +1,18 @@
+# Auto-generated release notes (Releases → "Generate release notes").
+changelog:
+  exclude:
+    labels:
+      - dependencies
+  categories:
+    - title: Breaking changes
+      labels:
+        - breaking
+    - title: Features
+      labels:
+        - enhancement
+    - title: Fixes
+      labels:
+        - bug
+    - title: Other changes
+      labels:
+        - "*"

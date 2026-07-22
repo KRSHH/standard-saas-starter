@@ -18,8 +18,8 @@ missing, it renders children without initializing.
 posthog.init(key, {
   api_host: host,
   person_profiles: "identified_only",
-  capture_pageview: true,      // auto pageviews
-  capture_exceptions: true,    // uncaught errors
+  capture_pageview: true, // auto pageviews
+  capture_exceptions: true, // uncaught errors
 });
 ```
 
@@ -48,11 +48,10 @@ automatically.
 
 ### Configuration
 
-| Var | Where | Purpose |
-|-----|-------|---------|
-| `NEXT_PUBLIC_POSTHOG_KEY` | `.env.local` | Project API key. |
+| Var                        | Where        | Purpose                                                       |
+| -------------------------- | ------------ | ------------------------------------------------------------- |
+| `NEXT_PUBLIC_POSTHOG_KEY`  | `.env.local` | Project API key.                                              |
 | `NEXT_PUBLIC_POSTHOG_HOST` | `.env.local` | Host (`https://app.posthog.com` or self-hosted). Also in CSP. |
-| `POSTHOG_PERSONAL_API_KEY` | `.env.local` | Optional, for server-side queries/exports. |
 
 Get keys from PostHog → **Project Settings**.
 
@@ -62,21 +61,25 @@ Get keys from PostHog → **Project Settings**.
 
 ### Setup
 
-Three config files, one per runtime (Next.js standard):
+Init lives in three files, one per runtime (the Next.js 16 instrumentation
+convention):
 
-| File | Runtime | Purpose |
-|------|---------|---------|
-| `sentry.client.config.ts` | Browser | Replays + client errors. |
-| `sentry.server.config.ts` | Node | Server errors + traces. |
-| `sentry.edge.config.ts` | Edge | Edge runtime errors. |
+| File                            | Runtime | Purpose                                                                                           |
+| ------------------------------- | ------- | ------------------------------------------------------------------------------------------------- |
+| `src/instrumentation-client.ts` | Browser | Replays + client errors. Next 16 auto-loads this (replaces the legacy `sentry.client.config.ts`). |
+| `sentry.server.config.ts`       | Node    | Server errors + traces.                                                                           |
+| `sentry.edge.config.ts`         | Edge    | Edge runtime errors.                                                                              |
 
-`src/instrumentation.ts` dynamically imports the right config based on
-`NEXT_RUNTIME`:
+`src/instrumentation.ts` dynamically imports the server/edge config based on
+`NEXT_RUNTIME` (the client config needs no import — Next 16 discovers
+`instrumentation-client.ts` automatically):
 
 ```ts
 export async function register() {
-  if (process.env.NEXT_RUNTIME === "nodejs") await import("../sentry.server.config");
-  if (process.env.NEXT_RUNTIME === "edge") await import("../sentry.edge.config");
+  if (process.env.NEXT_RUNTIME === "nodejs")
+    await import("../sentry.server.config");
+  if (process.env.NEXT_RUNTIME === "edge")
+    await import("../sentry.edge.config");
 }
 
 export const onRequestError = Sentry.captureRequestError;
@@ -90,22 +93,25 @@ Server Components, middleware (`proxy.ts`), and Route Handlers.
 
 ### Disabled when no DSN
 
+The client reads `NEXT_PUBLIC_SENTRY_DSN` (the client bundle can only see
+public vars); the server/edge configs accept the legacy `SENTRY_DSN` as a
+fallback:
+
 ```ts
-Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  enabled: !!process.env.SENTRY_DSN,
-  tracesSampleRate: 0.1,
-});
+// src/instrumentation-client.ts
+const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
+Sentry.init({ dsn, enabled: !!dsn, tracesSampleRate: 0.1 });
 ```
 
-If `SENTRY_DSN` is unset, Sentry is disabled — no errors, no traces.
+If `NEXT_PUBLIC_SENTRY_DSN` is unset, Sentry is disabled — no errors, no traces.
 
 ### Source maps (build-time)
 
-`SENTRY_ORG`, `SENTRY_PROJECT`, and `SENTRY_AUTH_TOKEN` are used by
-`@sentry/nextjs` at build time to upload source maps (so production stack
-traces are readable). These live in `.sentryclirc` (gitignored). Get the auth
-token from Sentry → **Settings → Auth Tokens**.
+`SENTRY_ORG`, `SENTRY_PROJECT`, and `SENTRY_AUTH_TOKEN` are read by
+`next.config.ts` (via `withSentryConfig`) at build time to upload source maps,
+so production stack traces are readable. The wrapper only runs when
+`SENTRY_AUTH_TOKEN` is set — local and CI builds without it stay untouched and
+quiet. Get the auth token from Sentry → **Settings → Auth Tokens**.
 
 ### CSP integration
 
@@ -116,14 +122,14 @@ Sentry ingest origins are hard-coded into the CSP in `src/lib/security/csp.ts`:
 
 ## When to use which
 
-| You want to know... | Use |
-|---------------------|-----|
-| How users move through your app | PostHog |
-| Feature adoption / funnel conversion | PostHog |
+| You want to know...                           | Use                          |
+| --------------------------------------------- | ---------------------------- |
+| How users move through your app               | PostHog                      |
+| Feature adoption / funnel conversion          | PostHog                      |
 | Server-side business events (signup, upgrade) | PostHog (`trackServerEvent`) |
-| A bug causing errors | Sentry |
-| What the user did right before a crash | Sentry Session Replay |
-| Slow server requests / DB queries | Sentry Performance (traces) |
+| A bug causing errors                          | Sentry                       |
+| What the user did right before a crash        | Sentry Session Replay        |
+| Slow server requests / DB queries             | Sentry Performance (traces)  |
 
 PostHog also has error tracking (`capture_exceptions: true`), but Sentry gives
 you source maps, release health, and replay. They complement each other.
@@ -176,10 +182,12 @@ try {
 
 ### Change the trace sample rate
 
-Edit `tracesSampleRate` in the three sentry config files. `0.1` = 10% of
+Edit `tracesSampleRate` in the Sentry init files (`src/instrumentation-client.ts`,
+`sentry.server.config.ts`, `sentry.edge.config.ts`). `0.1` = 10% of
 transactions traced. Lower for high-traffic apps to control cost.
 
 ### Disable Sentry in a specific environment
 
-Unset `SENTRY_DSN` (the `enabled` flag handles it). For a hard disable without
-removing the var, set `enabled: false` in the config files.
+Unset `NEXT_PUBLIC_SENTRY_DSN` (the `enabled` flag handles it). Unsetting only
+the legacy `SENTRY_DSN` is not enough — the client reads the public var. For a
+hard disable without removing the var, set `enabled: false` in the init files.

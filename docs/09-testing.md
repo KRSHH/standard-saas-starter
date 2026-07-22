@@ -148,13 +148,13 @@ CI runs the same thing.
 
 ### Individual checks
 
-| Command | What |
-|---------|------|
-| `bun run typecheck` | `tsc --noEmit` |
-| `bun run lint` | ESLint (flat config, `--max-warnings=0`) |
-| `bun run lint:fix` | ESLint with `--fix` |
-| `bun run format` | Prettier write |
-| `bun run format:check` | Prettier check |
+| Command                | What                                     |
+| ---------------------- | ---------------------------------------- |
+| `bun run typecheck`    | `tsc --noEmit`                           |
+| `bun run lint`         | ESLint (flat config, `--max-warnings=0`) |
+| `bun run lint:fix`     | ESLint with `--fix`                      |
+| `bun run format`       | Prettier write                           |
+| `bun run format:check` | Prettier check                           |
 
 ---
 

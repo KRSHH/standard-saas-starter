@@ -36,7 +36,7 @@ const eslintConfig = defineConfig([
     },
   },
 
-  // Looser rules for test files + scripts.
+  // Looser rules for test files + scripts (CLIs talk via console).
   {
     files: [
       "**/*.test.ts",
@@ -44,6 +44,7 @@ const eslintConfig = defineConfig([
       "**/*.spec.ts",
       "e2e/**",
       "src/db/seed.ts",
+      "scripts/**",
     ],
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
