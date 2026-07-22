@@ -18,8 +18,8 @@ missing, it renders children without initializing.
 posthog.init(key, {
   api_host: host,
   person_profiles: "identified_only",
-  capture_pageview: true,      // auto pageviews
-  capture_exceptions: true,    // uncaught errors
+  capture_pageview: true, // auto pageviews
+  capture_exceptions: true, // uncaught errors
 });
 ```
 
@@ -48,11 +48,11 @@ automatically.
 
 ### Configuration
 
-| Var | Where | Purpose |
-|-----|-------|---------|
-| `NEXT_PUBLIC_POSTHOG_KEY` | `.env.local` | Project API key. |
+| Var                        | Where        | Purpose                                                       |
+| -------------------------- | ------------ | ------------------------------------------------------------- |
+| `NEXT_PUBLIC_POSTHOG_KEY`  | `.env.local` | Project API key.                                              |
 | `NEXT_PUBLIC_POSTHOG_HOST` | `.env.local` | Host (`https://app.posthog.com` or self-hosted). Also in CSP. |
-| `POSTHOG_PERSONAL_API_KEY` | `.env.local` | Optional, for server-side queries/exports. |
+| `POSTHOG_PERSONAL_API_KEY` | `.env.local` | Optional, for server-side queries/exports.                    |
 
 Get keys from PostHog → **Project Settings**.
 
@@ -64,19 +64,21 @@ Get keys from PostHog → **Project Settings**.
 
 Three config files, one per runtime (Next.js standard):
 
-| File | Runtime | Purpose |
-|------|---------|---------|
+| File                      | Runtime | Purpose                  |
+| ------------------------- | ------- | ------------------------ |
 | `sentry.client.config.ts` | Browser | Replays + client errors. |
-| `sentry.server.config.ts` | Node | Server errors + traces. |
-| `sentry.edge.config.ts` | Edge | Edge runtime errors. |
+| `sentry.server.config.ts` | Node    | Server errors + traces.  |
+| `sentry.edge.config.ts`   | Edge    | Edge runtime errors.     |
 
 `src/instrumentation.ts` dynamically imports the right config based on
 `NEXT_RUNTIME`:
 
 ```ts
 export async function register() {
-  if (process.env.NEXT_RUNTIME === "nodejs") await import("../sentry.server.config");
-  if (process.env.NEXT_RUNTIME === "edge") await import("../sentry.edge.config");
+  if (process.env.NEXT_RUNTIME === "nodejs")
+    await import("../sentry.server.config");
+  if (process.env.NEXT_RUNTIME === "edge")
+    await import("../sentry.edge.config");
 }
 
 export const onRequestError = Sentry.captureRequestError;
@@ -116,14 +118,14 @@ Sentry ingest origins are hard-coded into the CSP in `src/lib/security/csp.ts`:
 
 ## When to use which
 
-| You want to know... | Use |
-|---------------------|-----|
-| How users move through your app | PostHog |
-| Feature adoption / funnel conversion | PostHog |
+| You want to know...                           | Use                          |
+| --------------------------------------------- | ---------------------------- |
+| How users move through your app               | PostHog                      |
+| Feature adoption / funnel conversion          | PostHog                      |
 | Server-side business events (signup, upgrade) | PostHog (`trackServerEvent`) |
-| A bug causing errors | Sentry |
-| What the user did right before a crash | Sentry Session Replay |
-| Slow server requests / DB queries | Sentry Performance (traces) |
+| A bug causing errors                          | Sentry                       |
+| What the user did right before a crash        | Sentry Session Replay        |
+| Slow server requests / DB queries             | Sentry Performance (traces)  |
 
 PostHog also has error tracking (`capture_exceptions: true`), but Sentry gives
 you source maps, release health, and replay. They complement each other.

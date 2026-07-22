@@ -13,10 +13,10 @@ declared in TypeScript and produced by `drizzle-kit generate`.
 
 Two Supabase connection modes:
 
-| Mode | Port | Use for | Why |
-|------|------|---------|-----|
-| **Direct** | 5432 | Migrations, local dev, long-running servers | One persistent connection. |
-| **Pooler (pgBouncer)** | 6543 | Serverless (Vercel functions) | Connection pooling for many short-lived requests. |
+| Mode                   | Port | Use for                                     | Why                                               |
+| ---------------------- | ---- | ------------------------------------------- | ------------------------------------------------- |
+| **Direct**             | 5432 | Migrations, local dev, long-running servers | One persistent connection.                        |
+| **Pooler (pgBouncer)** | 6543 | Serverless (Vercel functions)               | Connection pooling for many short-lived requests. |
 
 Set `DATABASE_URL` accordingly. The Drizzle client (`src/db/index.ts`) is
 already pooler-friendly:
@@ -39,12 +39,12 @@ serverless functions (each function invocation gets one connection).
 The template uses three different clients depending on context. Understanding
 which is which is the key to the whole security model.
 
-| Client | File | Role | RLS | Where used |
-|--------|------|------|-----|------------|
-| **Server** | `src/lib/supabase/server.ts` | `authenticated` (user's JWT) | ✅ Enforced | Server Components, Route Handlers, Server Actions, middleware. |
-| **Browser** | `src/lib/supabase/client.ts` | `authenticated` (user's JWT) | ✅ Enforced | Client Components. |
-| **Admin** | `src/lib/supabase/admin.ts` | `service_role` | ❌ Bypassed | Webhooks, system actions, audit logging. Server-only. |
-| **Drizzle `db`** | `src/db/index.ts` | `postgres` | ❌ Bypassed | Server-authoritative writes (subscriptions, notifications, audit). |
+| Client           | File                         | Role                         | RLS         | Where used                                                         |
+| ---------------- | ---------------------------- | ---------------------------- | ----------- | ------------------------------------------------------------------ |
+| **Server**       | `src/lib/supabase/server.ts` | `authenticated` (user's JWT) | ✅ Enforced | Server Components, Route Handlers, Server Actions, middleware.     |
+| **Browser**      | `src/lib/supabase/client.ts` | `authenticated` (user's JWT) | ✅ Enforced | Client Components.                                                 |
+| **Admin**        | `src/lib/supabase/admin.ts`  | `service_role`               | ❌ Bypassed | Webhooks, system actions, audit logging. Server-only.              |
+| **Drizzle `db`** | `src/db/index.ts`            | `postgres`                   | ❌ Bypassed | Server-authoritative writes (subscriptions, notifications, audit). |
 
 The server and browser clients use the **anon key** and respect RLS — users
 can only touch their own rows. The admin client uses the **service-role key**
@@ -69,11 +69,11 @@ Supabase's `auth.*` and `storage.*` schemas.
 ### Enums
 
 ```ts
-visibilityEnum        // public | private
-subscriptionStatusEnum // trialing | active | past_due | canceled | paused
-webhookProviderEnum   // razorpay | stripe | resend
-notificationChannelEnum // in_app | email
-notificationLevelEnum // info | success | warning | error
+visibilityEnum; // public | private
+subscriptionStatusEnum; // trialing | active | past_due | canceled | paused
+webhookProviderEnum; // razorpay | stripe | resend
+notificationChannelEnum; // in_app | email
+notificationLevelEnum; // info | success | warning | error
 ```
 
 Enums are declared on the schema (`app.enum(...)`, not top-level `pgEnum`) so
@@ -81,15 +81,15 @@ they land in `app` — matching the tables that reference them.
 
 ### Tables
 
-| Table | Purpose | RLS |
-|-------|---------|-----|
-| `profiles` | Extends `auth.users` (id FK + CASCADE). Email, name, avatar, gateway customer ids. | Self: select/insert/update. |
-| `subscriptions` | The billing gate. Server-authoritative — never trust the client for plan/status. | Self: select only. |
-| `organizations` | User-owned workspaces. Generic shape — rename for your domain. | Owner: full CRUD. Others: select public. |
-| `webhook_events` | Idempotency ledger. Unique on (provider, event_id). | None (service-role only). |
-| `audit_logs` | Append-only security-sensitive action log. | Self: select only. |
-| `notifications` | In-app + email notification rows. | Self: select + update read_at only. |
-| `notification_preferences` | Per-user opt-outs, bounce/complaint state. | Self: all. |
+| Table                      | Purpose                                                                            | RLS                                      |
+| -------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------- |
+| `profiles`                 | Extends `auth.users` (id FK + CASCADE). Email, name, avatar, gateway customer ids. | Self: select/insert/update.              |
+| `subscriptions`            | The billing gate. Server-authoritative — never trust the client for plan/status.   | Self: select only.                       |
+| `organizations`            | User-owned workspaces. Generic shape — rename for your domain.                     | Owner: full CRUD. Others: select public. |
+| `webhook_events`           | Idempotency ledger. Unique on (provider, event_id).                                | None (service-role only).                |
+| `audit_logs`               | Append-only security-sensitive action log.                                         | Self: select only.                       |
+| `notifications`            | In-app + email notification rows.                                                  | Self: select + update read_at only.      |
+| `notification_preferences` | Per-user opt-outs, bounce/complaint state.                                         | Self: all.                               |
 
 ### RLS pattern
 
@@ -198,15 +198,15 @@ test auth, sign up normally.
 
 ## Where each table is read/written
 
-| Table | Read by | Written by |
-|-------|---------|------------|
-| `profiles` | `lib/auth.ts` (`getCurrentProfile`), settings pages | Trigger (on signup), `lib/auth/actions.ts`, webhooks (customer ids) |
-| `subscriptions` | `lib/payments/subscriptions.ts`, billing page | Webhooks (Stripe/Razorpay), `lib/payments/subscriptions.ts` |
-| `organizations` | org page | `lib/auth/actions.ts` |
-| `webhook_events` | `lib/payments/webhook-idempotency.ts` | Webhook handlers (idempotency claim) |
-| `audit_logs` | (admin only) | `lib/audit/log.ts` (everywhere) |
-| `notifications` | notification API + bell | `lib/notifications/store.ts` (dispatcher) |
-| `notification_preferences` | dispatcher, preferences API | `lib/notifications/store.ts`, Resend webhook |
+| Table                      | Read by                                             | Written by                                                          |
+| -------------------------- | --------------------------------------------------- | ------------------------------------------------------------------- |
+| `profiles`                 | `lib/auth.ts` (`getCurrentProfile`), settings pages | Trigger (on signup), `lib/auth/actions.ts`, webhooks (customer ids) |
+| `subscriptions`            | `lib/payments/subscriptions.ts`, billing page       | Webhooks (Stripe/Razorpay), `lib/payments/subscriptions.ts`         |
+| `organizations`            | org page                                            | `lib/auth/actions.ts`                                               |
+| `webhook_events`           | `lib/payments/webhook-idempotency.ts`               | Webhook handlers (idempotency claim)                                |
+| `audit_logs`               | (admin only)                                        | `lib/audit/log.ts` (everywhere)                                     |
+| `notifications`            | notification API + bell                             | `lib/notifications/store.ts` (dispatcher)                           |
+| `notification_preferences` | dispatcher, preferences API                         | `lib/notifications/store.ts`, Resend webhook                        |
 
 ---
 

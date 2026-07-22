@@ -65,10 +65,10 @@ just works.
 Vercel lets you scope each env var to **Production**, **Preview**, or
 **Development**:
 
-| Scope | When it applies |
-|-------|-----------------|
-| Production | Merges to `main` / production deploys. |
-| Preview | PR deploys, branch deploys (non-production). |
+| Scope       | When it applies                               |
+| ----------- | --------------------------------------------- |
+| Production  | Merges to `main` / production deploys.        |
+| Preview     | PR deploys, branch deploys (non-production).  |
 | Development | Local `vercel dev` (pulls into `.env.local`). |
 
 Best practice:

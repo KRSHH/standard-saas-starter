@@ -81,7 +81,7 @@ on every request matching:
 ```ts
 matcher: [
   "/((?!_next/static|_next/image|favicon.ico|api/webhooks|.*\\.(?:svg|png|...)$).*)",
-]
+];
 ```
 
 Excludes static assets, Next internals, and **webhooks** (webhooks do their
@@ -98,19 +98,20 @@ refresh or CSP nonce logic).
   `"use client"`.
 
 The template keeps client components small and pushes logic to server actions
-+ route handlers. Forms use react-hook-form on the client but submit to server
-actions or API routes for the actual work.
+
+- route handlers. Forms use react-hook-form on the client but submit to server
+  actions or API routes for the actual work.
 
 ---
 
 ## Data access patterns
 
-| Context | Client | RLS |
-|---------|--------|-----|
-| Server Component / Action / Route Handler | Supabase server client (`createClient()`) | ✅ Enforced |
-| Client Component | Supabase browser client (`createClient()`) | ✅ Enforced |
-| Webhook / system action | Supabase admin client (`createAdminClient()`) | ❌ Bypassed |
-| Server-authoritative write (typed) | Drizzle `db` (`@/db`) | ❌ Bypassed |
+| Context                                   | Client                                        | RLS         |
+| ----------------------------------------- | --------------------------------------------- | ----------- |
+| Server Component / Action / Route Handler | Supabase server client (`createClient()`)     | ✅ Enforced |
+| Client Component                          | Supabase browser client (`createClient()`)    | ✅ Enforced |
+| Webhook / system action                   | Supabase admin client (`createAdminClient()`) | ❌ Bypassed |
+| Server-authoritative write (typed)        | Drizzle `db` (`@/db`)                         | ❌ Bypassed |
 
 > **Rule:** client components never import the admin client or the Drizzle
 > `db`. Both are server-only. The Drizzle writes and admin client run as
@@ -136,14 +137,14 @@ via the appropriate client, records an audit entry, and returns a typed result
 
 ## Naming conventions
 
-| Pattern | Example | Meaning |
-|---------|---------|---------|
-| `getCurrent*` | `getCurrentUser`, `getCurrentProfile` | Resolves the session user. Redirects or returns null. |
-| `get*Client` | `createClient`, `createAdminClient` | Lazy-initialized provider clients. |
-| `requireEnv` | `requireEnv("X", process.env.X)` | Fail-fast env validation. |
-| `logAudit` | `logAudit({...})` | Append-only audit write. |
-| `is*Configured` | `isTurnstileConfigured` | Boolean feature check. |
-| `*Variants` | `buttonVariants` | cva variant export (shadcn convention). |
+| Pattern         | Example                               | Meaning                                               |
+| --------------- | ------------------------------------- | ----------------------------------------------------- |
+| `getCurrent*`   | `getCurrentUser`, `getCurrentProfile` | Resolves the session user. Redirects or returns null. |
+| `get*Client`    | `createClient`, `createAdminClient`   | Lazy-initialized provider clients.                    |
+| `requireEnv`    | `requireEnv("X", process.env.X)`      | Fail-fast env validation.                             |
+| `logAudit`      | `logAudit({...})`                     | Append-only audit write.                              |
+| `is*Configured` | `isTurnstileConfigured`               | Boolean feature check.                                |
+| `*Variants`     | `buttonVariants`                      | cva variant export (shadcn convention).               |
 
 ---
 
@@ -176,17 +177,17 @@ Server state belongs on the server; ephemeral client state is local.
 
 ## Configuration files
 
-| File | Purpose |
-|------|---------|
-| `next.config.ts` | Next.js config (images, optimizePackageImports). |
-| `tsconfig.json` | TypeScript (strict, `@/*` path alias). |
-| `drizzle.config.ts` | Drizzle Kit (postgres, supabase migration prefix). |
-| `eslint.config.mjs` | ESLint 9 flat config (Next + TS + drizzle plugin). |
-| `vitest.config.ts` | Vitest (jsdom, coverage). |
-| `playwright.config.ts` | Playwright (chromium, auto-start dev server). |
-| `postcss.config.mjs` | Tailwind v4 PostCSS plugin. |
-| `bunfig.toml` | Bun config (hoisted linker, peer deps). |
-| `.prettierrc` / `.prettierignore` | Prettier. |
+| File                              | Purpose                                            |
+| --------------------------------- | -------------------------------------------------- |
+| `next.config.ts`                  | Next.js config (images, optimizePackageImports).   |
+| `tsconfig.json`                   | TypeScript (strict, `@/*` path alias).             |
+| `drizzle.config.ts`               | Drizzle Kit (postgres, supabase migration prefix). |
+| `eslint.config.mjs`               | ESLint 9 flat config (Next + TS + drizzle plugin). |
+| `vitest.config.ts`                | Vitest (jsdom, coverage).                          |
+| `playwright.config.ts`            | Playwright (chromium, auto-start dev server).      |
+| `postcss.config.mjs`              | Tailwind v4 PostCSS plugin.                        |
+| `bunfig.toml`                     | Bun config (hoisted linker, peer deps).            |
+| `.prettierrc` / `.prettierignore` | Prettier.                                          |
 
 ---
 

@@ -16,11 +16,11 @@ design — a failure never breaks the user's request.
 `src/lib/email/client.ts` — lazily initialized. `getResend()` throws only when
 called without `RESEND_API_KEY`, so the app runs without email configured.
 
-| Helper | Purpose |
-|--------|---------|
-| `emailFrom` | Sender address (`EMAIL_FROM`, defaults to Resend sandbox). |
-| `emailReplyTo` | Reply-To (`EMAIL_REPLY_TO`). |
-| `appDomain` | Your domain (derived from `siteConfig.url`) — for Resend domain verification. |
+| Helper         | Purpose                                                                       |
+| -------------- | ----------------------------------------------------------------------------- |
+| `emailFrom`    | Sender address (`EMAIL_FROM`, defaults to Resend sandbox).                    |
+| `emailReplyTo` | Reply-To (`EMAIL_REPLY_TO`).                                                  |
+| `appDomain`    | Your domain (derived from `siteConfig.url`) — for Resend domain verification. |
 
 ### Templates
 
@@ -71,7 +71,10 @@ Defined in `src/db/schema.ts`:
 
 ```ts
 export const NOTIFICATION_CATEGORIES = [
-  "billing", "security", "system", "invite",
+  "billing",
+  "security",
+  "system",
+  "invite",
 ] as const;
 ```
 
@@ -85,11 +88,11 @@ Add your own categories here, then use them when dispatching.
 await dispatchNotification({
   userId,
   category: "billing",
-  level: "info",          // info | success | warning | error
+  level: "info", // info | success | warning | error
   title: "Payment received",
   body: "Your Pro plan is active.",
   url: "/app/billing",
-  sendEmail: true,        // default true; pass false to force in-app only
+  sendEmail: true, // default true; pass false to force in-app only
 });
 ```
 
@@ -112,13 +115,13 @@ If any fail, only the in-app row is created.
 
 ### API routes
 
-| Route | Method | Purpose |
-|-------|--------|---------|
-| `/api/notifications` | GET | List current user's notifications. |
-| `/api/notifications/[id]/read` | POST | Mark one as read. |
-| `/api/notifications/read-all` | POST | Mark all as read. |
-| `/api/notifications/preferences` | GET/PATCH | Get/update email preferences. |
-| `/api/notifications/unsubscribe` | GET | One-click unsubscribe (token in query). |
+| Route                            | Method    | Purpose                                 |
+| -------------------------------- | --------- | --------------------------------------- |
+| `/api/notifications`             | GET       | List current user's notifications.      |
+| `/api/notifications/[id]/read`   | POST      | Mark one as read.                       |
+| `/api/notifications/read-all`    | POST      | Mark all as read.                       |
+| `/api/notifications/preferences` | GET/PATCH | Get/update email preferences.           |
+| `/api/notifications/unsubscribe` | GET       | One-click unsubscribe (token in query). |
 
 ### The bell UI
 
@@ -143,8 +146,8 @@ should be durable). Signed with HMAC-SHA256.
 ### Secret
 
 ```ts
-process.env.NOTIFICATIONS_UNSUBSCRIBE_SECRET
-  ?? `dev-unsubscribe-${process.env.SUPABASE_SERVICE_ROLE_KEY ?? "insecure"}`
+process.env.NOTIFICATIONS_UNSUBSCRIBE_SECRET ??
+  `dev-unsubscribe-${process.env.SUPABASE_SERVICE_ROLE_KEY ?? "insecure"}`;
 ```
 
 - **Dev:** derived from the service-role key (zero-config).
@@ -175,11 +178,11 @@ idempotency claim → handle.
 
 ### Handled events
 
-| Event | Action |
-|-------|--------|
-| `email.bounced` | Sets `notification_preferences.bouncedAt` on the matching user. Audits. |
-| `email.complained` | Sets `complainedAt`. Audits. |
-| `email.delivered` / `opened` / `sent` / `clicked` | No state change (left to PostHog/Resend). |
+| Event                                             | Action                                                                  |
+| ------------------------------------------------- | ----------------------------------------------------------------------- |
+| `email.bounced`                                   | Sets `notification_preferences.bouncedAt` on the matching user. Audits. |
+| `email.complained`                                | Sets `complainedAt`. Audits.                                            |
+| `email.delivered` / `opened` / `sent` / `clicked` | No state change (left to PostHog/Resend).                               |
 
 ### Reconciliation
 
@@ -199,15 +202,15 @@ dashboard) if a user asks to be re-added.
 
 ## Configuration summary
 
-| What | Where | Required? |
-|------|-------|-----------|
-| `RESEND_API_KEY` | `.env.local` | To send any email. |
-| `EMAIL_FROM` | `.env.local` | Sender address (verified domain). |
-| `EMAIL_REPLY_TO` | `.env.local` | Reply-To. |
-| `RESEND_WEBHOOK_SECRET` | `.env.local` | To process bounce/complaint events. |
-| `NOTIFICATIONS_UNSUBSCRIBE_SECRET` | `.env.local` (prod) | Stateless unsubscribe token signing. |
-| Resend webhook endpoint | Resend dashboard | `/api/webhooks/resend`. |
-| Verified domain | Resend dashboard | For `EMAIL_FROM` (or use sandbox for dev). |
+| What                               | Where               | Required?                                  |
+| ---------------------------------- | ------------------- | ------------------------------------------ |
+| `RESEND_API_KEY`                   | `.env.local`        | To send any email.                         |
+| `EMAIL_FROM`                       | `.env.local`        | Sender address (verified domain).          |
+| `EMAIL_REPLY_TO`                   | `.env.local`        | Reply-To.                                  |
+| `RESEND_WEBHOOK_SECRET`            | `.env.local`        | To process bounce/complaint events.        |
+| `NOTIFICATIONS_UNSUBSCRIBE_SECRET` | `.env.local` (prod) | Stateless unsubscribe token signing.       |
+| Resend webhook endpoint            | Resend dashboard    | `/api/webhooks/resend`.                    |
+| Verified domain                    | Resend dashboard    | For `EMAIL_FROM` (or use sandbox for dev). |
 
 ---
 

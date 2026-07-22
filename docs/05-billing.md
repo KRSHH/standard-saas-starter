@@ -38,18 +38,18 @@ need code changes per environment.
 
 `app.subscriptions` is the server-authoritative record. Key columns:
 
-| Column | Purpose |
-|--------|---------|
-| `userId` | Owning profile (FK + CASCADE). |
-| `plan` | `'starter' \| 'pro'` (matches `PLANS` slugs). |
-| `status` | `trialing \| active \| past_due \| canceled \| paused`. |
-| `provider` | `razorpay \| stripe`. |
-| `providerSubscriptionId` | The gateway's subscription id (lookup key for webhooks). |
-| `providerPaymentId` | Latest payment id. |
-| `amountCents` / `currency` | Smallest unit + ISO code. |
-| `currentPeriodStart` / `currentPeriodEnd` | From the gateway. |
-| `canceledAt` | When cancellation took effect. |
-| `metadata` | Raw webhook payload for audit/reconciliation. |
+| Column                                    | Purpose                                                  |
+| ----------------------------------------- | -------------------------------------------------------- |
+| `userId`                                  | Owning profile (FK + CASCADE).                           |
+| `plan`                                    | `'starter' \| 'pro'` (matches `PLANS` slugs).            |
+| `status`                                  | `trialing \| active \| past_due \| canceled \| paused`.  |
+| `provider`                                | `razorpay \| stripe`.                                    |
+| `providerSubscriptionId`                  | The gateway's subscription id (lookup key for webhooks). |
+| `providerPaymentId`                       | Latest payment id.                                       |
+| `amountCents` / `currency`                | Smallest unit + ISO code.                                |
+| `currentPeriodStart` / `currentPeriodEnd` | From the gateway.                                        |
+| `canceledAt`                              | When cancellation took effect.                           |
+| `metadata`                                | Raw webhook payload for audit/reconciliation.            |
 
 ### Entitlement gate
 
@@ -58,7 +58,10 @@ need code changes per environment.
 user can access paid features:
 
 ```ts
-import { getActiveSubscription, isEntitled } from "@/lib/payments/subscriptions";
+import {
+  getActiveSubscription,
+  isEntitled,
+} from "@/lib/payments/subscriptions";
 
 const sub = await getActiveSubscription(user.id);
 if (!isEntitled(sub)) {
@@ -154,11 +157,11 @@ return early. This prevents double-processing when a gateway retries.
 
 ### Signature verification (per provider)
 
-| Provider | Method |
-|----------|--------|
-| Stripe | `stripe.webhooks.constructEventAsync(rawBody, signature, secret)` |
-| Razorpay | HMAC-SHA256, timing-safe compared (`verifyRazorpayWebhook`) |
-| Resend | `resend.webhooks.verify({ payload, headers, webhookSecret })` (Svix) |
+| Provider | Method                                                               |
+| -------- | -------------------------------------------------------------------- |
+| Stripe   | `stripe.webhooks.constructEventAsync(rawBody, signature, secret)`    |
+| Razorpay | HMAC-SHA256, timing-safe compared (`verifyRazorpayWebhook`)          |
+| Resend   | `resend.webhooks.verify({ payload, headers, webhookSecret })` (Svix) |
 
 All read the **raw body** (`await request.text()`) before any parsing — the
 signature is over raw bytes.
@@ -169,20 +172,20 @@ signature is over raw bytes.
 
 ### Stripe → our enum
 
-| Stripe event | Our status |
-|--------------|------------|
-| `customer.subscription.created` | `trialing` |
-| `customer.subscription.updated` (active) | `active` |
+| Stripe event                                      | Our status |
+| ------------------------------------------------- | ---------- |
+| `customer.subscription.created`                   | `trialing` |
+| `customer.subscription.updated` (active)          | `active`   |
 | `customer.subscription.updated` (past_due/unpaid) | `past_due` |
-| `customer.subscription.deleted` | `canceled` |
+| `customer.subscription.deleted`                   | `canceled` |
 
 ### Razorpay → our enum
 
-| Razorpay event | Our status |
-|----------------|------------|
-| `subscription.activated` / `subscription.charged` | `active` |
-| `subscription.pending` / `subscription.halted` | `past_due` |
-| `subscription.cancelled` | `canceled` |
+| Razorpay event                                    | Our status |
+| ------------------------------------------------- | ---------- |
+| `subscription.activated` / `subscription.charged` | `active`   |
+| `subscription.pending` / `subscription.halted`    | `past_due` |
+| `subscription.cancelled`                          | `canceled` |
 
 ---
 
