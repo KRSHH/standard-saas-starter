@@ -20,5 +20,3 @@ export const OAUTH_PROVIDERS: readonly OAuthProviderConfig[] = [
   { id: "google", name: "Google" },
   { id: "github", name: "GitHub" },
 ] as const;
-
-export type OAuthProviderId = (typeof OAUTH_PROVIDERS)[number]["id"];

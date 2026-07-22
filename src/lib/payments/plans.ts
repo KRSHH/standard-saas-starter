@@ -1,3 +1,5 @@
+import { env } from "@/lib/env";
+
 /**
  * Pricing config — single source of truth for plans.
  *
@@ -17,8 +19,8 @@ export const PLANS = {
     currency: "usd" as const,
     interval: "monthly" as const,
     description: "For individuals and small teams getting started.",
-    razorpayPlanId: process.env.RAZORPAY_STARTER_PLAN_ID,
-    stripePriceId: process.env.STRIPE_STARTER_PRICE_ID,
+    razorpayPlanId: env.RAZORPAY_STARTER_PLAN_ID,
+    stripePriceId: env.STRIPE_STARTER_PRICE_ID,
     features: [
       "Up to 3 projects",
       "Community support",
@@ -34,8 +36,8 @@ export const PLANS = {
     currency: "usd" as const,
     interval: "monthly" as const,
     description: "For growing teams that need more power and support.",
-    razorpayPlanId: process.env.RAZORPAY_PRO_PLAN_ID,
-    stripePriceId: process.env.STRIPE_PRO_PRICE_ID,
+    razorpayPlanId: env.RAZORPAY_PRO_PLAN_ID,
+    stripePriceId: env.STRIPE_PRO_PRICE_ID,
     features: [
       "Unlimited projects",
       "Priority support",

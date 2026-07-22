@@ -1,13 +1,11 @@
 import { createBrowserClient } from "@supabase/ssr";
 
-import { getPublicSupabaseEnv } from "@/lib/env";
+import { env } from "@/lib/env";
 
-/**
- * Supabase browser client — use in Client Components.
- * Auth state is stored in cookies via the SSR adapter (not localStorage),
- * so server and client share the same session.
- */
+// Supabase browser client. Session stored in cookies (shared with server).
 export function createClient() {
-  const { url, anonKey } = getPublicSupabaseEnv();
-  return createBrowserClient(url, anonKey);
+  return createBrowserClient(
+    env.NEXT_PUBLIC_SUPABASE_URL,
+    env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  );
 }

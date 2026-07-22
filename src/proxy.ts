@@ -1,27 +1,15 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
+import { env } from "@/lib/env";
 import { buildCspHeader } from "@/lib/security/csp";
-import { getPublicSupabaseEnv } from "@/lib/env";
 
-/**
- * Single Next.js middleware:
- *   1. Generate a CSP nonce → set on request + response headers.
- *   2. Refresh Supabase auth session (writes refreshed cookies).
- *   3. Enforce /app auth gate + /auth redirect-if-authed.
- *   4. Attach standard security headers to every response.
- *
- * Order matters: nonce first (so server components can read it), then session.
- */
+// Next.js middleware (proxy): CSP nonce, Supabase session refresh, auth gate.
 export async function proxy(request: NextRequest) {
-  // Fail helpfully, not with a raw 500: a fresh clone without .env.local
-  // would otherwise crash on every route deep inside the session refresh.
-  if (
-    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  ) {
-    // /api/health doesn't need Supabase — let it through so deploys can
-    // still be diagnosed when env is missing.
+  // Fail helpfully, not with a 500: a fresh clone without Supabase configured
+  // would crash here. Check the raw env (incl. integration aliases) before
+  // touching the typed schema, which throws on missing required vars.
+  if (!isSupabaseConfigured()) {
     if (request.nextUrl.pathname.startsWith("/api/health")) {
       return NextResponse.next();
     }
@@ -29,21 +17,13 @@ export async function proxy(request: NextRequest) {
   }
 
   const nonce = generateNonce();
-
-  // Build the request-headers snapshot with the nonce.
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
 
-  // 1. CSP header string (per-request nonce baked in).
   const csp = buildCspHeader(nonce);
-
-  // 2. Start with a passthrough response that carries the nonce request headers.
   let response = NextResponse.next({ request: { headers: requestHeaders } });
 
-  // 3. Supabase session refresh. Creates its own response (setAll swaps cookies).
   const supabaseResponse = await refreshSupabaseSession(request);
-  // Merge: keep the nonce request headers from `response`, but use supabaseResponse
-  // for cookie writes. Copy nonce + CSP onto the supabase response so both win.
   response = supabaseResponse;
   response.headers.set("x-nonce", nonce);
   applySecurityHeaders(response, csp);
@@ -51,34 +31,45 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 
+// Whether Supabase client env is set — across every accepted alias.
+function isSupabaseConfigured(): boolean {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
+  const key =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
+    process.env.SUPABASE_ANON_KEY ??
+    process.env.SUPABASE_PUBLISHABLE_KEY;
+  return Boolean(url && key);
+}
+
 async function refreshSupabaseSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
-  const { url, anonKey } = getPublicSupabaseEnv();
 
-  const supabase = createServerClient(url, anonKey, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll();
-      },
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value }) =>
-          request.cookies.set(name, value),
-        );
-        supabaseResponse = NextResponse.next({ request });
-        cookiesToSet.forEach(({ name, value, options }) =>
-          supabaseResponse.cookies.set(name, value, options),
-        );
+  const supabase = createServerClient(
+    env.NEXT_PUBLIC_SUPABASE_URL,
+    env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value),
+          );
+          supabaseResponse = NextResponse.next({ request });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options),
+          );
+        },
       },
     },
-  });
+  );
 
   // getUser() refreshes the session server-side if needed.
-  // IMPORTANT: do not run code between createServerClient and getUser.
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protect /app routes.
   if (!user && request.nextUrl.pathname.startsWith("/app")) {
     const url = request.nextUrl.clone();
     url.pathname = "/sign-in";
@@ -86,9 +77,8 @@ async function refreshSupabaseSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Redirect authenticated users away from the public auth surface.
-  // /forgot-password and /reset-password are intentionally EXCLUDED — the
-  // password-reset flow lands here with an active recovered session.
+  // Redirect authed users away from the auth surface (not /forgot or /reset —
+  // those land with an active recovered session).
   if (
     user &&
     ["/sign-in", "/sign-up", "/check-email"].includes(request.nextUrl.pathname)
@@ -102,7 +92,6 @@ async function refreshSupabaseSession(request: NextRequest) {
   return supabaseResponse;
 }
 
-/** Attach the security header bundle to a response. */
 function applySecurityHeaders(res: NextResponse, csp: string) {
   res.headers.set("Content-Security-Policy", csp);
   res.headers.set("X-Frame-Options", "DENY");
@@ -119,10 +108,7 @@ function applySecurityHeaders(res: NextResponse, csp: string) {
   res.headers.set("X-DNS-Prefetch-Control", "on");
 }
 
-/**
- * Setup guidance when Supabase env vars are missing. Full instructions in
- * development; a terse 503 in production (never leak config state publicly).
- */
+// Setup guidance in dev; terse 503 in prod (never leak config state).
 function missingEnvResponse(): NextResponse {
   if (process.env.NODE_ENV !== "development") {
     return new NextResponse("Service unavailable", { status: 503 });
@@ -136,13 +122,12 @@ function missingEnvResponse(): NextResponse {
   h1{font-size:1.25rem} a{color:#7dd3fc}
 </style></head><body>
   <h1>Almost there — Supabase env vars are missing</h1>
-  <p>This template needs <code>NEXT_PUBLIC_SUPABASE_URL</code> and
+  <p>This template needs a Supabase project URL and anon key. Either:</p>
+  <p><strong>1.</strong> Connect the Supabase Vercel integration (one click), <em>or</em></p>
+  <p><strong>2.</strong> Set <code>NEXT_PUBLIC_SUPABASE_URL</code> +
      <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> in <code>.env.local</code>.</p>
   <pre>bun run setup   # creates .env.local + shows what's missing</pre>
-  <p>Grab both values from your
-     <a href="https://supabase.com/dashboard">Supabase dashboard</a> →
-     Project Settings → API, then restart <code>bun run dev</code>.</p>
-  <p>Full walkthrough: see the README's Quick start.</p>
+  <p>See the README Quick start for the full walkthrough.</p>
 </body></html>`;
   return new NextResponse(html, {
     status: 503,
@@ -151,16 +136,12 @@ function missingEnvResponse(): NextResponse {
 }
 
 function generateNonce(): string {
-  // Use the Web Crypto API (globalThis.crypto) — available in both edge and
-  // node runtimes in Next 16. Avoids the Node `crypto` module which is not
-  // in the Edge Runtime's supported native modules list.
   const uuid = globalThis.crypto.randomUUID();
   return Buffer.from(uuid).toString("base64");
 }
 
 export const config = {
-  // Run on every navigable path EXCEPT static assets and Next internals.
-  // Webhooks are excluded — they have their own signature verification.
+  // Run on every navigable path EXCEPT static assets, Next internals, webhooks.
   matcher: [
     "/((?!_next/static|_next/image|favicon.ico|api/webhooks|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|txt|xml|webmanifest)$).*)",
   ],

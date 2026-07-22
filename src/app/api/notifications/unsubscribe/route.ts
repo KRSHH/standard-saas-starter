@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
+import { env } from "@/lib/env";
 import { rateLimit } from "@/lib/security/rate-limit";
 import { verifyUnsubscribeToken } from "@/lib/notifications/tokens";
 import {
@@ -67,7 +68,7 @@ async function applyUnsubscribe(
   // surface that as a clean 503 instead of an unhandled 500.
   if (
     process.env.NODE_ENV === "production" &&
-    !process.env.NOTIFICATIONS_UNSUBSCRIBE_SECRET
+    !env.NOTIFICATIONS_UNSUBSCRIBE_SECRET
   ) {
     return {
       ok: false,

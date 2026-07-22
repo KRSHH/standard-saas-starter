@@ -1,33 +1,16 @@
 import { NextResponse, type NextRequest } from "next/server";
 import type Stripe from "stripe";
 
+import { env } from "@/lib/env";
 import type { SubscriptionStatus } from "@/db/schema";
 import { getStripe } from "@/lib/payments/stripe";
 import { updateSubscriptionByProviderId } from "@/lib/payments/subscriptions";
 import { claimWebhookEvent } from "@/lib/payments/webhook-idempotency";
-import { requireEnv } from "@/lib/env";
 
-/**
- * Stripe webhook — server-authoritative subscription updates.
- * Configure in Stripe dashboard → Developers → Webhooks.
- *
- * NOTE on Stripe v22 (acacia API, 2025-09-24):
- *   - `current_period_start/end` moved from Subscription to SubscriptionItem.
- *     We read them from `sub.items.data[0]` (the primary item).
- *   - `invoice.subscription` was removed in favor of `invoice.parent`
- *     (polymorphic). Rather than chase it, we rely on the three
- *     `customer.subscription.*` events which already cover every lifecycle
- *     transition we care about (created/updated/deleted).
- *
- * Events handled:
- *   - customer.subscription.created   → trialing
- *   - customer.subscription.updated   → active / past_due / paused
- *   - customer.subscription.deleted   → canceled
- */
+// Stripe webhook — server-authoritative subscription updates.
+// Handles: customer.subscription.{created,updated,deleted}.
 export async function POST(request: NextRequest) {
-  // Clean 503 (not a 500 crash) when Stripe isn't configured — the template
-  // treats every payment provider as optional.
-  if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
+  if (!env.STRIPE_SECRET_KEY || !env.STRIPE_WEBHOOK_SECRET) {
     return NextResponse.json(
       { error: "Stripe is not configured" },
       { status: 503 },
@@ -37,17 +20,13 @@ export async function POST(request: NextRequest) {
   const stripe = getStripe();
   const signature = request.headers.get("stripe-signature") ?? "";
   const rawBody = await request.text();
-  const webhookSecret = requireEnv(
-    "STRIPE_WEBHOOK_SECRET",
-    process.env.STRIPE_WEBHOOK_SECRET,
-  );
 
   let event: Stripe.Event;
   try {
     event = await stripe.webhooks.constructEventAsync(
       rawBody,
       signature,
-      webhookSecret,
+      env.STRIPE_WEBHOOK_SECRET,
     );
   } catch {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
@@ -61,7 +40,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ received: true });
   }
 
-  // Idempotency: Stripe event IDs (evt_...) are globally unique.
+  // Stripe event IDs (evt_...) are globally unique — use for idempotency.
   const isNew = await claimWebhookEvent("stripe", event.id, {
     eventType: event.type,
     payload: event,
@@ -71,7 +50,6 @@ export async function POST(request: NextRequest) {
   }
 
   const sub = event.data.object;
-
   // v22: period timestamps live on the first subscription item.
   const primaryItem = sub.items?.data?.[0];
   const periodStart = primaryItem?.current_period_start;

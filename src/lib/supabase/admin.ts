@@ -1,19 +1,15 @@
 import { createClient } from "@supabase/supabase-js";
 
-import { getPublicSupabaseEnv, requireEnv } from "@/lib/env";
+import { env } from "@/lib/env";
 
-/**
- * Admin Supabase client — bypasses RLS using the service role key.
- * Server-only. NEVER import in client components or expose to browser.
- * Use for: webhooks, cron jobs, system-level migrations.
- */
+// Admin Supabase client — bypasses RLS via the service role key. Server-only.
 export function createAdminClient() {
-  const { url } = getPublicSupabaseEnv();
-  const serviceRoleKey = requireEnv(
-    "SUPABASE_SERVICE_ROLE_KEY",
-    process.env.SUPABASE_SERVICE_ROLE_KEY,
+  if (!env.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error("SUPABASE_SERVICE_ROLE_KEY is not configured");
+  }
+  return createClient(
+    env.NEXT_PUBLIC_SUPABASE_URL,
+    env.SUPABASE_SERVICE_ROLE_KEY,
+    { auth: { autoRefreshToken: false, persistSession: false } },
   );
-  return createClient(url, serviceRoleKey, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
 }

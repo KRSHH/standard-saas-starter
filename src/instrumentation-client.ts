@@ -1,28 +1,18 @@
 import * as Sentry from "@sentry/nextjs";
 
-/**
- * Client-side Sentry init — Next 16 loads this file automatically on the
- * browser (instrumentation-client convention; replaces the legacy
- * sentry.client.config.ts, which nothing loads without withSentryConfig).
- *
- * The DSN must be NEXT_PUBLIC_* to be inlined into the client bundle.
- * DSNs are safe to expose — they only allow event submission.
- */
-const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
+import { env } from "@/lib/env";
 
+// Client-side Sentry init. Next 16 auto-loads this (instrumentation-client
+// convention). The DSN must be NEXT_PUBLIC_* to be inlined into the bundle.
 Sentry.init({
-  dsn,
+  dsn: env.NEXT_PUBLIC_SENTRY_DSN,
   tracesSampleRate: 0.1,
   environment: process.env.NODE_ENV,
-  enabled: !!dsn,
-  // Replay for session debugging on errors
+  enabled: Boolean(env.NEXT_PUBLIC_SENTRY_DSN),
   replaysSessionSampleRate: 0.05,
   replaysOnErrorSampleRate: 1.0,
   integrations: [
-    Sentry.replayIntegration({
-      maskAllText: true,
-      blockAllMedia: true,
-    }),
+    Sentry.replayIntegration({ maskAllText: true, blockAllMedia: true }),
   ],
 });
 
