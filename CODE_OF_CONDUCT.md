@@ -26,7 +26,7 @@ Examples of unacceptable behavior:
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported privately to the maintainer at **fritzhands@gmail.com**. All
+reported privately to the maintainer, [**@KRSHH**](https://github.com/KRSHH). All
 complaints will be reviewed and investigated promptly and fairly, and the
 reporter's privacy will be respected.
 

@@ -7,7 +7,7 @@ DX improvements are always welcome.
 ## Getting started
 
 ```bash
-git clone https://github.com/fritzhand/nextjs-template.git
+git clone https://github.com/KRSHH/nextjs-template.git
 cd nextjs-template
 bun install
 cp .env.example .env.local   # fill in Supabase + DATABASE_URL at minimum
@@ -41,6 +41,6 @@ Playwright E2E.
 
 ## Reporting bugs
 
-Use the [bug report template](https://github.com/fritzhand/nextjs-template/issues/new?template=bug_report.yml).
+Use the [bug report template](https://github.com/KRSHH/nextjs-template/issues/new?template=bug_report.yml).
 For security vulnerabilities, see [SECURITY.md](SECURITY.md) — please don't open
 a public issue.

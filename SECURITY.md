@@ -5,7 +5,7 @@
 Please **do not open a public issue** for security vulnerabilities.
 
 Report privately via
-[GitHub Security Advisories](https://github.com/fritzhand/nextjs-template/security/advisories/new)
+[GitHub Security Advisories](https://github.com/KRSHH/nextjs-template/security/advisories/new)
 ("Report a vulnerability"). You'll get a response within a few days.
 
 ## Scope

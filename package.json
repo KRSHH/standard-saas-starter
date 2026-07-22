@@ -5,14 +5,14 @@
   "type": "module",
   "description": "Production-grade Next.js SaaS starter — Supabase auth, Drizzle + Postgres RLS, Stripe & Razorpay billing, Resend email, PostHog, Sentry, strict CSP, Vitest + Playwright. Clone, configure, ship.",
   "license": "MIT",
-  "author": "Jeremy Fritzhand",
+  "author": "KRSHH",
   "repository": {
     "type": "git",
-    "url": "https://github.com/fritzhand/nextjs-template.git"
+    "url": "https://github.com/KRSHH/nextjs-template.git"
   },
-  "homepage": "https://github.com/fritzhand/nextjs-template#readme",
+  "homepage": "https://github.com/KRSHH/nextjs-template#readme",
   "bugs": {
-    "url": "https://github.com/fritzhand/nextjs-template/issues"
+    "url": "https://github.com/KRSHH/nextjs-template/issues"
   },
   "keywords": [
     "nextjs",
