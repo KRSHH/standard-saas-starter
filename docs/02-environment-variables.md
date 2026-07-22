@@ -62,7 +62,7 @@ the gitignore is there to prevent.
 
 ## The complete variable reference
 
-29 environment variables total. Grouped by feature area. Each entry shows:
+Grouped by feature area. Each entry shows:
 
 - **Status:** Required / Optional / Public (exposed to browser).
 - **Read by:** the file(s) that consume it.
@@ -142,14 +142,13 @@ See [Security → Rate limiting](./08-security.md#rate-limiting).
 
 ### Razorpay (optional — popular in India)
 
-| Variable                      | Status | Read by                        | Controls                                  |
-| ----------------------------- | ------ | ------------------------------ | ----------------------------------------- |
-| `RAZORPAY_KEY_ID`             | 🟡     | `src/lib/payments/razorpay.ts` | Server API key.                           |
-| `RAZORPAY_KEY_SECRET`         | 🟡     | `src/lib/payments/razorpay.ts` | Server API secret.                        |
-| `RAZORPAY_WEBHOOK_SECRET`     | 🟡     | `src/lib/payments/razorpay.ts` | HMAC secret for `/api/webhooks/razorpay`. |
-| `NEXT_PUBLIC_RAZORPAY_KEY_ID` | 🟡 🌐  | (checkout client)              | Public key for the browser checkout SDK.  |
-| `RAZORPAY_STARTER_PLAN_ID`    | 🟡     | `src/lib/payments/plans.ts`    | Plan id for the Starter tier.             |
-| `RAZORPAY_PRO_PLAN_ID`        | 🟡     | `src/lib/payments/plans.ts`    | Plan id for the Pro tier.                 |
+| Variable                   | Status | Read by                        | Controls                                  |
+| -------------------------- | ------ | ------------------------------ | ----------------------------------------- |
+| `RAZORPAY_KEY_ID`          | 🟡     | `src/lib/payments/razorpay.ts` | Server API key.                           |
+| `RAZORPAY_KEY_SECRET`      | 🟡     | `src/lib/payments/razorpay.ts` | Server API secret.                        |
+| `RAZORPAY_WEBHOOK_SECRET`  | 🟡     | `src/lib/payments/razorpay.ts` | HMAC secret for `/api/webhooks/razorpay`. |
+| `RAZORPAY_STARTER_PLAN_ID` | 🟡     | `src/lib/payments/plans.ts`    | Plan id for the Starter tier.             |
+| `RAZORPAY_PRO_PLAN_ID`     | 🟡     | `src/lib/payments/plans.ts`    | Plan id for the Pro tier.                 |
 
 **How to get the values:** Razorpay Dashboard → **Settings → API Keys**
 (key id + secret), **→ Webhooks** (create one for
@@ -161,13 +160,12 @@ See [Billing](./05-billing.md).
 
 ### Stripe (global payments)
 
-| Variable                             | Status | Read by                                | Controls                                                         |
-| ------------------------------------ | ------ | -------------------------------------- | ---------------------------------------------------------------- |
-| `STRIPE_SECRET_KEY`                  | 🟡     | `src/lib/payments/stripe.ts`           | Server secret key (`sk_test_...` / `sk_live_...`).               |
-| `STRIPE_WEBHOOK_SECRET`              | 🟡     | `src/app/api/webhooks/stripe/route.ts` | Signing secret for the Stripe webhook endpoint.                  |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | 🟡 🌐  | (checkout client)                      | Publishable key (`pk_test_...` / `pk_live_...`) for the browser. |
-| `STRIPE_STARTER_PRICE_ID`            | 🟡     | `src/lib/payments/plans.ts`            | Price id for the Starter tier.                                   |
-| `STRIPE_PRO_PRICE_ID`                | 🟡     | `src/lib/payments/plans.ts`            | Price id for the Pro tier.                                       |
+| Variable                  | Status | Read by                                | Controls                                           |
+| ------------------------- | ------ | -------------------------------------- | -------------------------------------------------- |
+| `STRIPE_SECRET_KEY`       | 🟡     | `src/lib/payments/stripe.ts`           | Server secret key (`sk_test_...` / `sk_live_...`). |
+| `STRIPE_WEBHOOK_SECRET`   | 🟡     | `src/app/api/webhooks/stripe/route.ts` | Signing secret for the Stripe webhook endpoint.    |
+| `STRIPE_STARTER_PRICE_ID` | 🟡     | `src/lib/payments/plans.ts`            | Price id for the Starter tier.                     |
+| `STRIPE_PRO_PRICE_ID`     | 🟡     | `src/lib/payments/plans.ts`            | Price id for the Pro tier.                         |
 
 **How to get the values:** Stripe Dashboard → **Developers → API keys**
 (secret + publishable), **→ Developers → Webhooks** (add an endpoint for
@@ -195,11 +193,10 @@ See [Email & Notifications](./06-email-notifications.md).
 
 ### Analytics (PostHog)
 
-| Variable                   | Status      | Read by                                                                                                  | Controls                                                                                                     |
-| -------------------------- | ----------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `NEXT_PUBLIC_POSTHOG_KEY`  | 🟡 🌐       | `src/components/providers/posthog.tsx`, `src/lib/analytics/posthog-server.ts`                            | Project API key.                                                                                             |
-| `NEXT_PUBLIC_POSTHOG_HOST` | 🟡 🌐       | `src/components/providers/posthog.tsx`, `src/lib/analytics/posthog-server.ts`, `src/lib/security/csp.ts` | PostHog host (e.g. `https://app.posthog.com` or self-hosted). Also added to the CSP `connect-src` allowlist. |
-| `POSTHOG_PERSONAL_API_KEY` | 🟡 (secret) | (server-side export/query)                                                                               | Personal API key for server-side PostHog queries. Optional.                                                  |
+| Variable                   | Status | Read by                                                                                                  | Controls                                                                                                     |
+| -------------------------- | ------ | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `NEXT_PUBLIC_POSTHOG_KEY`  | 🟡 🌐  | `src/components/providers/posthog.tsx`, `src/lib/analytics/posthog-server.ts`                            | Project API key.                                                                                             |
+| `NEXT_PUBLIC_POSTHOG_HOST` | 🟡 🌐  | `src/components/providers/posthog.tsx`, `src/lib/analytics/posthog-server.ts`, `src/lib/security/csp.ts` | PostHog host (e.g. `https://app.posthog.com` or self-hosted). Also added to the CSP `connect-src` allowlist. |
 
 **How to get the values:** PostHog → **Project Settings** (API key + host).
 
@@ -209,27 +206,33 @@ initializing PostHog — analytics just doesn't run. See
 
 ### Error tracking (Sentry)
 
-| Variable            | Status | Read by                                 | Controls                                           |
-| ------------------- | ------ | --------------------------------------- | -------------------------------------------------- |
-| `SENTRY_DSN`        | 🟡     | `sentry.{client,server,edge}.config.ts` | Project DSN. Sentry is disabled when unset.        |
-| `SENTRY_ORG`        | 🟡     | `.sentryclirc` (build-time)             | Sentry org slug — for source map uploads at build. |
-| `SENTRY_PROJECT`    | 🟡     | `.sentryclirc` (build-time)             | Sentry project slug.                               |
-| `SENTRY_AUTH_TOKEN` | 🟡     | `.sentryclirc` (build-time)             | Auth token for source map uploads.                 |
+| Variable                 | Status | Read by                                                           | Controls                                                                                                                              |
+| ------------------------ | ------ | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SENTRY_DSN` | 🟡 🌐  | `src/instrumentation-client.ts`, `sentry.{server,edge}.config.ts` | Project DSN. The client reads this public var (the client bundle can't see server vars). Sentry is disabled when unset.               |
+| `SENTRY_ORG`             | 🟡     | `next.config.ts` (build-time, via `withSentryConfig`)             | Sentry org slug — for source map uploads at build.                                                                                    |
+| `SENTRY_PROJECT`         | 🟡     | `next.config.ts` (build-time, via `withSentryConfig`)             | Sentry project slug.                                                                                                                  |
+| `SENTRY_AUTH_TOKEN`      | 🟡     | `next.config.ts` (build-time, via `withSentryConfig`)             | Auth token for source map uploads. When unset, `next.config.ts` skips the `withSentryConfig` wrapper entirely (local/CI stays quiet). |
 
-`.sentryclirc` is gitignored — it holds the build-time token. See
-[Analytics & Errors](./07-analytics-errors.md).
+> The server and edge configs also accept the legacy `SENTRY_DSN` as a fallback
+> (`process.env.SENTRY_DSN ?? process.env.NEXT_PUBLIC_SENTRY_DSN`), but new
+> setups should use `NEXT_PUBLIC_SENTRY_DSN` so all three runtimes share one var.
+
+See [Analytics & Errors](./07-analytics-errors.md).
 
 ### Bot protection (Cloudflare Turnstile — optional)
 
 | Variable                         | Status | Read by                                                        | Controls                                                                                                     |
 | -------------------------------- | ------ | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | 🟡 🌐  | `src/components/auth/turnstile.tsx`, `src/lib/security/csp.ts` | Site key. When set, the Turnstile widget renders on sign-in/sign-up and the CSP allows the Turnstile script. |
-| `TURNSTILE_SECRET_KEY`           | 🟡     | (server-side verification, if you add it)                      | Secret key.                                                                                                  |
 
 **Opt-in.** When the site key is unset, the widget renders nothing and the
 CSP omits the Turnstile origins — forms work zero-config. When set, you must
 also enable captcha in Supabase (Auth → Settings → Bot & Abuse). See
 [Security → Turnstile](./08-security.md#turnstile).
+
+> **No `TURNSTILE_SECRET_KEY` env var.** The secret key goes in the Supabase
+> dashboard (Auth → Settings → Bot & Abuse Protection), where Supabase verifies
+> the token server-side. The template never reads it from env.
 
 ### Built-in Next.js variables
 

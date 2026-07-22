@@ -146,12 +146,19 @@ should be durable). Signed with HMAC-SHA256.
 ### Secret
 
 ```ts
-process.env.NOTIFICATIONS_UNSUBSCRIBE_SECRET ??
-  `dev-unsubscribe-${process.env.SUPABASE_SERVICE_ROLE_KEY ?? "insecure"}`;
+const secret = process.env.NOTIFICATIONS_UNSUBSCRIBE_SECRET;
+if (secret) return secret;
+if (process.env.NODE_ENV === "production") {
+  throw new Error("NOTIFICATIONS_UNSUBSCRIBE_SECRET is required in production");
+}
+return `dev-unsubscribe-${process.env.SUPABASE_SERVICE_ROLE_KEY ?? "insecure"}`;
 ```
 
 - **Dev:** derived from the service-role key (zero-config).
-- **Prod:** set `NOTIFICATIONS_UNSUBSCRIBE_SECRET` to a long random string.
+- **Prod:** **required** — `getSecret()` throws rather than falling back to a
+  guessable secret. This mirrors the rate-limiter's fail-closed posture: an
+  unset secret would let anyone forge unsubscribe tokens for arbitrary users.
+  Set `NOTIFICATIONS_UNSUBSCRIBE_SECRET` to a long random string.
 
 > Rotating the secret invalidates all existing unsubscribe tokens. That's
 > usually fine (they expire in a year anyway), but be aware.
@@ -202,15 +209,15 @@ dashboard) if a user asks to be re-added.
 
 ## Configuration summary
 
-| What                               | Where               | Required?                                  |
-| ---------------------------------- | ------------------- | ------------------------------------------ |
-| `RESEND_API_KEY`                   | `.env.local`        | To send any email.                         |
-| `EMAIL_FROM`                       | `.env.local`        | Sender address (verified domain).          |
-| `EMAIL_REPLY_TO`                   | `.env.local`        | Reply-To.                                  |
-| `RESEND_WEBHOOK_SECRET`            | `.env.local`        | To process bounce/complaint events.        |
-| `NOTIFICATIONS_UNSUBSCRIBE_SECRET` | `.env.local` (prod) | Stateless unsubscribe token signing.       |
-| Resend webhook endpoint            | Resend dashboard    | `/api/webhooks/resend`.                    |
-| Verified domain                    | Resend dashboard    | For `EMAIL_FROM` (or use sandbox for dev). |
+| What                               | Where               | Required?                                                                                           |
+| ---------------------------------- | ------------------- | --------------------------------------------------------------------------------------------------- |
+| `RESEND_API_KEY`                   | `.env.local`        | To send any email.                                                                                  |
+| `EMAIL_FROM`                       | `.env.local`        | Sender address (verified domain).                                                                   |
+| `EMAIL_REPLY_TO`                   | `.env.local`        | Reply-To.                                                                                           |
+| `RESEND_WEBHOOK_SECRET`            | `.env.local`        | To process bounce/complaint events.                                                                 |
+| `NOTIFICATIONS_UNSUBSCRIBE_SECRET` | `.env.local` (prod) | Stateless unsubscribe token signing. **Required in prod** (the app throws on first use if missing). |
+| Resend webhook endpoint            | Resend dashboard    | `/api/webhooks/resend`.                                                                             |
+| Verified domain                    | Resend dashboard    | For `EMAIL_FROM` (or use sandbox for dev).                                                          |
 
 ---
 

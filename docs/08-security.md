@@ -142,14 +142,15 @@ When unset, the widget renders nothing and the CSP omits Turnstile origins.
 ### Setup
 
 1. Create a site at [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/).
-2. Set env vars:
+2. Set the **site key** env var:
 
    ```dotenv
    NEXT_PUBLIC_TURNSTILE_SITE_KEY=0x4AAAAAAA...
-   TURNSTILE_SECRET_KEY=0x4AAAAAAB...
    ```
 
-3. Enable captcha in Supabase: **Auth → Settings → Bot & Abuse Protection**.
+3. In Supabase under **Auth → Settings → Bot & Abuse Protection**, paste the
+   **secret key** and enable captcha. Supabase verifies the token server-side,
+   so the template never reads `TURNSTILE_SECRET_KEY` from env.
 4. Done — the widget and verification are automatic.
 
 ---
