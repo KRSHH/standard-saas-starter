@@ -158,22 +158,11 @@ CI runs the same thing.
 
 ---
 
-## CI considerations
+## CI
 
-The template doesn't ship a GitHub Actions workflow, but the commands are
-CI-ready:
-
-```yaml
-- run: bun install --frozen-lockfile
-- run: bun run check
-- run: bun run test
-- run: bun run test:e2e
-  env:
-    CI: "true"
-```
-
-For E2E in CI you need the `NEXT_PUBLIC_*` env vars set (Playwright builds the
-app via `bun run dev`). See [Environment Variables → CI](./02-environment-variables.md#ci-github-actions).
+The template ships a GitHub Actions workflow at [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)
+with three jobs: **Typecheck · Lint · Format · Test**, **Playwright E2E**, and
+**Production build**. All run on every push and PR.
 
 ---
 
@@ -191,8 +180,8 @@ Create `e2e/<area>.spec.ts`. Playwright auto-starts the dev server.
 
 ```ts
 it.skip("flaky thing", () => { ... });
-// or in CI only:
-it.skipConditionally(process.env.CI, "flaky in CI")("...", () => { ... });
+// or skip only in CI:
+it.skipIf(process.env.CI)("...", () => { ... });
 ```
 
 ### Debug a failing E2E

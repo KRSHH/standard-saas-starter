@@ -93,6 +93,9 @@ bun run dev          # → http://localhost:3000
 
 Deploys anywhere Next.js runs (Vercel, Railway, Fly.io, self-hosted Node/Bun). After deploying, hit `/api/health` — it reports DB connectivity and which optional integrations the deploy has configured.
 
+> [!TIP]
+> **On Vercel?** After deploying, install the [Supabase Vercel integration](https://vercel.com/integrations/supabase) and pick your project. It injects env vars under its own names (`POSTGRES_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, …) — the app **auto-detects all of them**, so you don't have to create or alias anything by hand. Redeploy and you're live. See [Environment Variables](./docs/02-environment-variables.md) for the full alias list.
+
 You can also open the repo in a ready-to-code [GitHub Codespace](https://codespaces.new/KRSHH/nextjs-template) — the devcontainer installs Bun, dependencies, and runs `bun run setup` for you.
 
 ## Documentation

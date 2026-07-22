@@ -10,7 +10,6 @@ const nextConfig: NextConfig = {
       "lucide-react",
       "react-hook-form",
       "@tanstack/react-query",
-      "drizzle-orm",
     ],
   },
   images: {
@@ -21,12 +20,9 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "cdn.jsdelivr.net" },
     ],
   },
-  // Path aliases (`@/`) resolve from tsconfig.json `paths` for Turbopack and webpack.
-  // Per-request security headers are applied in src/proxy.ts (Next 16 middleware).
 };
 
-// Source-map upload to Sentry only runs when an auth token is present
-// (real deploys). Local/CI builds without Sentry env stay untouched and quiet.
+// Source-map upload to Sentry only runs when an auth token is present.
 export default process.env.SENTRY_AUTH_TOKEN
   ? withSentryConfig(nextConfig, {
       org: process.env.SENTRY_ORG,

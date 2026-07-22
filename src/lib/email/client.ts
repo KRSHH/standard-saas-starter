@@ -1,27 +1,19 @@
 import { Resend } from "resend";
 
-import { siteConfig } from "@/lib/site";
+import { env } from "@/lib/env";
 
-/**
- * Resend client (server-only). Lazily initialized so missing keys
- * don't crash dev/test environments.
- */
-let client: Resend | null = null;
+// Resend client (server-only). Singleton survives HMR in dev.
+const globalForResend = globalThis as unknown as { __resend?: Resend };
 
+export const resend: Resend | null = env.RESEND_API_KEY
+  ? (globalForResend.__resend ??= new Resend(env.RESEND_API_KEY))
+  : null;
+
+/** Throws if Resend isn't configured. */
 export function getResend(): Resend {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) {
-    throw new Error("Resend key not set. Add RESEND_API_KEY.");
-  }
-  if (!client) client = new Resend(key);
-  return client;
+  if (!resend) throw new Error("RESEND_API_KEY is not configured");
+  return resend;
 }
 
-/** Canonical "from" address. Falls back to Resend's sandbox sender. */
-export const emailFrom =
-  process.env.EMAIL_FROM ?? `Acme <onboarding@resend.dev>`;
-export const emailReplyTo =
-  process.env.EMAIL_REPLY_TO ?? "hello@yourdomain.com";
-
-/** Domain verification helper for Resend. */
-export const appDomain = new URL(siteConfig.url).hostname;
+export const emailFrom = env.EMAIL_FROM ?? `Acme <onboarding@resend.dev>`;
+export const emailReplyTo = env.EMAIL_REPLY_TO ?? "hello@yourdomain.com";

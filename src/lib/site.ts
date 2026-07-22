@@ -1,11 +1,7 @@
-/**
- * Central site config — single source of truth for SEO + branding.
- * Used by root layout, sitemap, robots, manifest, OG image.
- *
- * Brand values are env-driven so the template ships without hard-coded
- * product names: set NEXT_PUBLIC_APP_NAME / NEXT_PUBLIC_APP_URL in .env.local.
- * Social links default to empty (omit from JSON-LD `sameAs` when unset).
- */
+import { env } from "@/lib/env";
+
+// Central site config — single source of truth for SEO + branding.
+// Brand values are env-driven so the template ships without hard-coded names.
 
 function trimmedUrl(value: string | undefined): string | undefined {
   if (!value) return undefined;
@@ -16,22 +12,17 @@ function trimmedUrl(value: string | undefined): string | undefined {
   }
 }
 
-const name = process.env.NEXT_PUBLIC_APP_NAME ?? "Acme";
+const name = env.NEXT_PUBLIC_APP_NAME;
+const twitter = trimmedUrl(env.NEXT_PUBLIC_TWITTER_URL);
+const github = trimmedUrl(env.NEXT_PUBLIC_GITHUB_URL);
 
-const twitter = trimmedUrl(process.env.NEXT_PUBLIC_TWITTER_URL);
-const github = trimmedUrl(process.env.NEXT_PUBLIC_GITHUB_URL);
-
-/**
- * External profile links. Empty entries are filtered out of JSON-LD `sameAs`
- * so search engines don't see dangling links when only some are configured.
- */
 const externalLinks = { twitter, github } as const;
 
 export const siteConfig = {
   name,
   title: `${name} — The modern way to run your business`,
   description: `${name} is a production-ready Next.js SaaS template. Authentication, billing, observability, and a hardened security baseline — batteries included.`,
-  url: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
+  url: env.NEXT_PUBLIC_APP_URL,
   locale: "en_US",
   keywords: [
     "Next.js template",
@@ -55,10 +46,7 @@ export const siteConfig = {
 
 export type SiteConfig = typeof siteConfig;
 
-/**
- * External profile URLs that are actually set — used for JSON-LD `sameAs`.
- * Internal/legal links never belong in `sameAs` (they're same-site).
- */
+// External profile URLs that are actually set — for JSON-LD `sameAs`.
 export function configuredExternalLinks(): string[] {
   return Object.values(externalLinks).filter(
     (v): v is string => typeof v === "string",

@@ -1,5 +1,3 @@
-// ESLint 9 flat config — Next.js 16 native flat config format.
-// Pattern verified via context7: /vercel/next.js eslint docs.
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
@@ -56,8 +54,6 @@ const eslintConfig = defineConfig([
   // Override default ignores.
   globalIgnores([
     ".next/**",
-    "out/**",
-    "build/**",
     "node_modules/**",
     "drizzle/**",
     "playwright-report/**",

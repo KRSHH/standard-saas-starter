@@ -1,4 +1,3 @@
-import { sql } from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "@/db";
@@ -11,12 +10,11 @@ import {
 /**
  * Webhook idempotency — prevents duplicate event processing.
  *
- * Razorpay/Stripe/Resend retry webhooks on timeout. Without dedup, a single
- * event could be recorded twice. This helper inserts into `webhook_events`
- * which has a unique constraint on (provider, event_id). On conflict we know
- * it's a dup.
+ * Providers retry on timeout; without dedup a single event could be recorded
+ * twice. Inserts into `webhook_events` (unique on provider + event_id). On
+ * conflict (Postgres 23505) we know it's a dup.
  *
- * @returns true if this is a NEW event (process it), false if duplicate (skip).
+ * @returns true if NEW (process it), false if duplicate (skip).
  */
 export async function claimWebhookEvent(
   provider: WebhookProvider,
@@ -47,18 +45,4 @@ function isPostgresError(error: unknown): error is { code: string } {
     "code" in error &&
     typeof error.code === "string"
   );
-}
-
-/** Count events processed in a window — for observability dashboards. */
-export async function recentEventCount(
-  provider: WebhookProvider,
-  sinceSeconds: number,
-): Promise<number> {
-  const rows = await db.execute<{ count: number }>(sql`
-    select count(*)::int as count
-    from app.webhook_events
-    where provider = ${provider}
-      and processed_at > now() - (${sinceSeconds} || ' seconds')::interval
-  `);
-  return rows[0]?.count ?? 0;
 }

@@ -11,52 +11,19 @@ across local / preview / staging / production.
 
 ---
 
-## How Next.js loads env files (the standard)
+## Where env values come from
 
-Next.js loads `.env` files automatically (verified against the
-`next-env/index.ts` `loadEnvConfig` source). For a given `NODE_ENV` ("mode"),
-it checks files **in this priority order** and stops at the first match for
-each variable:
+- **Local dev:** `.env.local` (gitignored). Copy it from `.env.example` via
+  `bun run setup` or `cp .env.example .env.local`.
+- **Deployed (Vercel / Railway / self-hosted):** the hosting platform's env
+  settings, injected into `process.env` at runtime. Never commit a
+  `.env.production` — it would contain real secrets.
 
-| Priority | File                | Loaded when               | Committed?          |
-| -------- | ------------------- | ------------------------- | ------------------- |
-| 1        | `process.env`       | always                    | n/a (runtime)       |
-| 2        | `.env.<mode>.local` | that mode                 | **No** (gitignored) |
-| 3        | `.env.local`        | all modes **except test** | **No** (gitignored) |
-| 4        | `.env.<mode>`       | that mode                 | **No** (gitignored) |
-| 5        | `.env`              | all modes                 | **No** (gitignored) |
+Every real env file is gitignored; only `.env.example` is committed.
 
-Where `<mode>` is `development` (for `next dev`), `production` (for
-`next build` / `next start`), or `test` (for `vitest`).
-
-**Key rule:** `process.env` (real runtime variables set by the host) always
-wins. Files only fill in what the runtime doesn't already provide.
-
-### What the template commits
-
-| File                                                             | Committed? | Purpose                                                         |
-| ---------------------------------------------------------------- | ---------- | --------------------------------------------------------------- |
-| `.env.example`                                                   | **Yes**    | The template. Copy it to `.env.local`. Annotated with comments. |
-| `.env.local`                                                     | No         | Your real local-dev secrets.                                    |
-| `.env` / `.env.*.local` / `.env.development` / `.env.production` | No         | All gitignored (see `.gitignore:13-18`).                        |
-
-The template's `.gitignore` ignores **every** real env file. This is the secure
-Next.js standard — no secrets in the repo.
-
-### What about preview / staging / production?
-
-| Environment                     | Where values come from                                                   |
-| ------------------------------- | ------------------------------------------------------------------------ |
-| **Vercel Preview** (PR deploys) | Vercel project settings → **Preview** scope env vars                     |
-| **Vercel Production**           | Vercel project settings → **Production** scope env vars                  |
-| **Self-hosted (Docker)**        | `docker run -e VAR=val` or `--env-file` / container orchestrator secrets |
-| **Self-hosted (k8s)**           | ConfigMaps + Secrets, injected into the pod's env                        |
-| **CI (GitHub Actions)**         | Repository Secrets → `env:` in the workflow                              |
-
-In all of these, values land in `process.env` at runtime. **Do not create
-`.env.production` or `.env.staging` files for deployed environments.** They
-would need to contain real secrets, and committing secrets is exactly what
-the gitignore is there to prevent.
+> **One-click on Vercel?** The Supabase Vercel integration injects vars under
+> its own names (`POSTGRES_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, …). The
+> typed env schema auto-detects all of them — see the alias list below.
 
 ---
 
@@ -98,10 +65,24 @@ auth redirects.
 | `SUPABASE_SERVICE_ROLE_KEY`     | Optional (server) | `src/lib/supabase/admin.ts`, `src/lib/notifications/tokens.ts` (dev fallback only) | Service-role key. **Bypasses RLS.** Used by webhooks, admin actions (account deletion), and audit logging. NEVER expose to the browser or prefix with `NEXT_PUBLIC_`. |
 | `DATABASE_URL`                  | Required          | `src/db/index.ts`, `drizzle.config.ts`                                             | Postgres connection string for Drizzle.                                                                                                                               |
 
-> **Why `NEXT_PUBLIC_SUPABASE_URL` throws at startup:** `src/proxy.ts`
-> (middleware) runs on every request and calls `getPublicSupabaseEnv()` →
-> `requireEnv()` to refresh the Supabase session. With no Supabase configured,
-> there's nothing to refresh, so it fails fast. This is intentional.
+> **One-click integration (no manual env needed):** if you connect the
+> Supabase Vercel integration, you don't have to set these names. The resolver
+> in `src/lib/env.ts` auto-detects the integration's aliases — canonical names
+> always win, aliases are only consulted when the canonical name is unset:
+>
+> - `NEXT_PUBLIC_SUPABASE_URL` ← also `SUPABASE_URL`
+> - `NEXT_PUBLIC_SUPABASE_ANON_KEY` ← also `SUPABASE_ANON_KEY`, `SUPABASE_PUBLISHABLE_KEY`
+> - `SUPABASE_SERVICE_ROLE_KEY` ← also `SUPABASE_SECRET_KEY`
+> - `DATABASE_URL` ← also `POSTGRES_URL`, `POSTGRES_PRISMA_URL`
+>
+> Migrations prefer the **direct** connection: `drizzle.config.ts` checks
+> `POSTGRES_URL_NON_POOLING` first (port 5432), then `DATABASE_URL`, then the
+> pooled aliases — so `drizzle-kit migrate` works either way.
+
+> **Why Supabase throws at startup when unconfigured:** `src/proxy.ts`
+> (middleware) runs on every request and accesses the typed `env` to build the
+> Supabase client. With no Supabase configured, the schema validation fails and
+> renders the setup page (dev) or returns 503 (prod). This is intentional.
 
 **How to get the values:** Supabase Dashboard → **Project Settings → API**
 (URL + keys) and **→ Database → Connection string**.
@@ -323,21 +304,18 @@ environment. The schema is the same; the data and keys differ.
 
 ---
 
-## `requireEnv` and the fail-fast pattern
+## The typed env schema
 
-`src/lib/env.ts` is the single validation point:
+`src/lib/env.ts` uses [`@t3-oss/env-nextjs`](https://env.t3.gg) to validate
+every env var at startup via Zod. Read `env.X` everywhere instead of
+`process.env.X`:
 
-```ts
-export function requireEnv(name: string, value: string | undefined): string {
-  if (!value) throw new Error(`${name} is required`);
-  return value;
-}
-```
+- **Required vars** (Supabase URL/anon key, `DATABASE_URL`) throw on first
+  access if missing — the app fails fast with a clear message.
+- **Optional vars** (Stripe, Resend, PostHog, …) are `.optional()` in the
+  schema, so the app runs fine without them; each integration no-ops when its
+  var is unset.
 
-Only the Supabase public vars go through this — they're needed for the app to
-serve anything at all. Optional providers (Stripe, Resend, PostHog…) are
-**lazily initialized**: their client builders throw only when you actually
-call them, so the app runs fine without those providers configured.
-
-If you add a new required env var, validate it through `requireEnv` at the
-point of use rather than reading `process.env` directly.
+Aliases (the Supabase Vercel integration's `POSTGRES_URL`, `SUPABASE_URL`, …)
+resolve inside `runtimeEnv` — the single place that knows about them. To add
+a new env var, add it to the `server`/`client` schema and `runtimeEnv` map.

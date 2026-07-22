@@ -3,8 +3,8 @@ import { eq } from "drizzle-orm";
 
 import { db } from "@/db";
 import { profiles } from "@/db/schema";
+import { env } from "@/lib/env";
 import { getResend } from "@/lib/email/client";
-import { requireEnv } from "@/lib/env";
 import { claimWebhookEvent } from "@/lib/payments/webhook-idempotency";
 import {
   markEmailBounced,
@@ -38,26 +38,20 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Clean 503 (not a 500 crash) when Resend isn't configured — email is
-  // optional in this template.
-  if (!process.env.RESEND_API_KEY || !process.env.RESEND_WEBHOOK_SECRET) {
+  // Clean 503 (not a 500 crash) when Resend isn't configured.
+  if (!env.RESEND_API_KEY || !env.RESEND_WEBHOOK_SECRET) {
     return NextResponse.json(
       { error: "Resend is not configured" },
       { status: 503 },
     );
   }
 
-  const webhookSecret = requireEnv(
-    "RESEND_WEBHOOK_SECRET",
-    process.env.RESEND_WEBHOOK_SECRET,
-  );
-
   let event;
   try {
     event = getResend().webhooks.verify({
       payload: rawBody,
       headers: { id, timestamp, signature },
-      webhookSecret,
+      webhookSecret: env.RESEND_WEBHOOK_SECRET,
     });
   } catch {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });

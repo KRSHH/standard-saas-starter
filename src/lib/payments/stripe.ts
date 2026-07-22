@@ -1,18 +1,18 @@
 import Stripe from "stripe";
 
-/**
- * Stripe client (server-only). Global payments gateway.
- * Lazily initialized so missing keys don't crash dev/test environments.
- */
-let client: Stripe | null = null;
+import { env } from "@/lib/env";
 
+// Stripe client (server-only). Singleton survives HMR in dev.
+const globalForStripe = globalThis as unknown as { __stripe?: Stripe };
+
+export const stripe: Stripe | null = env.STRIPE_SECRET_KEY
+  ? (globalForStripe.__stripe ??= new Stripe(env.STRIPE_SECRET_KEY))
+  : null;
+
+/** Throws if Stripe isn't configured — use in webhook handlers. */
 export function getStripe(): Stripe {
-  const key = process.env.STRIPE_SECRET_KEY;
-  if (!key) {
-    throw new Error("Stripe key not set. Add STRIPE_SECRET_KEY.");
+  if (!stripe) {
+    throw new Error("STRIPE_SECRET_KEY is not configured");
   }
-  if (!client) {
-    client = new Stripe(key);
-  }
-  return client;
+  return stripe;
 }

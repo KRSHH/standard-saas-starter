@@ -1,33 +1,25 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
-/**
- * Stateless unsubscribe tokens.
- *
- * HMAC-signed JWT-ish tokens encoding `{ userId, category?, exp }` so the
- * unsubscribe endpoint can validate a click from an email without a database
- * lookup. The secret defaults to a derived value in dev (zero-config) and
- * should be set explicitly via NOTIFICATIONS_UNSUBSCRIBE_SECRET in prod.
- *
- * Format: `<base64url-payload>.<base64url-signature>` (no header — the alg is
- * fixed to HMAC-SHA256).
- */
+import { env } from "@/lib/env";
+
+// Stateless unsubscribe tokens: HMAC-SHA256 signed `<payload>.<signature>`.
+// Format lets the endpoint validate an email click without a DB lookup.
 
 const ALG = "sha256";
-const TTL_SECONDS = 60 * 60 * 24 * 365; // 1 year — unsub links should be durable.
+const TTL_SECONDS = 60 * 60 * 24 * 365; // 1 year
 
-function getSecret(): string {
-  const secret = process.env.NOTIFICATIONS_UNSUBSCRIBE_SECRET;
-  if (secret) return secret;
-  // Fail closed in production — a guessable fallback would let anyone forge
-  // unsubscribe tokens for arbitrary users (mirrors the rate-limit policy).
+export function getSecret(): string {
+  if (env.NOTIFICATIONS_UNSUBSCRIBE_SECRET) {
+    return env.NOTIFICATIONS_UNSUBSCRIBE_SECRET;
+  }
+  // Fail closed in production — a guessable secret would let anyone forge
+  // unsubscribe tokens. Dev gets a derived fallback for zero-config.
   if (process.env.NODE_ENV === "production") {
     throw new Error(
       "NOTIFICATIONS_UNSUBSCRIBE_SECRET is required in production",
     );
   }
-  // Dev fallback — derived from the service role key if present, else a
-  // fixed dev secret. NEVER rely on this in production.
-  return `dev-unsubscribe-${process.env.SUPABASE_SERVICE_ROLE_KEY ?? "insecure"}`;
+  return `dev-unsubscribe-${env.SUPABASE_SERVICE_ROLE_KEY ?? "insecure"}`;
 }
 
 function b64url(input: Buffer | string): string {

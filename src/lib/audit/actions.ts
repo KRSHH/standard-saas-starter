@@ -25,7 +25,6 @@ export const AUDIT_ACTIONS = {
   USER_ACCOUNT_DELETED: "user.account.deleted",
 
   // Notifications
-  NOTIFICATION_DISPATCHED: "notification.dispatched",
   NOTIFICATION_EMAIL_SUPPRESSED: "notification.email.suppressed",
   NOTIFICATION_UNSUBSCRIBED: "notification.unsubscribed",
   NOTIFICATION_EMAIL_BOUNCED: "notification.email.bounced",
