@@ -38,6 +38,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Clean 503 (not a 500 crash) when Resend isn't configured — email is
+  // optional in this template.
+  if (!process.env.RESEND_API_KEY || !process.env.RESEND_WEBHOOK_SECRET) {
+    return NextResponse.json(
+      { error: "Resend is not configured" },
+      { status: 503 },
+    );
+  }
+
   const webhookSecret = requireEnv(
     "RESEND_WEBHOOK_SECRET",
     process.env.RESEND_WEBHOOK_SECRET,

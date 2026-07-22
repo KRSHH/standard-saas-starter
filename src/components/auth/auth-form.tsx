@@ -54,13 +54,24 @@ export function AuthForm({
   const [turnstileToken, setTurnstileToken] = React.useState<string | null>(
     null,
   );
-  const turnstileRequired = isSignUp && isTurnstileConfigured();
+  // When Supabase captcha is enabled it enforces the token on EVERY auth
+  // call — sign-in included — so the widget must render on both forms.
+  const turnstileRequired = isTurnstileConfigured();
 
   const onSignIn = async (values: SignInValues) => {
+    if (turnstileRequired && !turnstileToken) {
+      toast.error("Please complete the bot check.");
+      return;
+    }
     setIsLoading(true);
     try {
       const supabase = createClient();
-      const { error } = await supabase.auth.signInWithPassword(values);
+      const { error } = await supabase.auth.signInWithPassword({
+        ...values,
+        ...(turnstileToken
+          ? { options: { captchaToken: turnstileToken } }
+          : {}),
+      });
       if (error) {
         toast.error(error.message);
         return;
@@ -169,6 +180,9 @@ export function AuthForm({
       >
         Forgot password?
       </Link>
+      {turnstileRequired ? (
+        <TurnstileWidget onToken={setTurnstileToken} />
+      ) : null}
       <SubmitButton isLoading={isLoading} label="Sign in" />
     </form>
   );

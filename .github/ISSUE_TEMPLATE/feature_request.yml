@@ -1,0 +1,24 @@
+name: Feature request
+description: Suggest an improvement or addition to the template.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What gap or friction does this address? Templates stay lean — the bar is "most SaaS projects need this."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What you'd like to see, and roughly how it could fit the existing stack.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered

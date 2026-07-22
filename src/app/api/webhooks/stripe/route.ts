@@ -25,6 +25,15 @@ import { requireEnv } from "@/lib/env";
  *   - customer.subscription.deleted   → canceled
  */
 export async function POST(request: NextRequest) {
+  // Clean 503 (not a 500 crash) when Stripe isn't configured — the template
+  // treats every payment provider as optional.
+  if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
+    return NextResponse.json(
+      { error: "Stripe is not configured" },
+      { status: 503 },
+    );
+  }
+
   const stripe = getStripe();
   const signature = request.headers.get("stripe-signature") ?? "";
   const rawBody = await request.text();
