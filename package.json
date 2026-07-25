@@ -1,5 +1,5 @@
 {
-  "name": "nextjs-template",
+  "name": "standard-saas-starter",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -8,15 +8,15 @@
   "author": "KRSHH",
   "repository": {
     "type": "git",
-    "url": "https://github.com/KRSHH/nextjs-template.git"
+    "url": "https://github.com/KRSHH/standard-saas-starter.git"
   },
-  "homepage": "https://github.com/KRSHH/nextjs-template#readme",
+  "homepage": "https://github.com/KRSHH/standard-saas-starter#readme",
   "bugs": {
-    "url": "https://github.com/KRSHH/nextjs-template/issues"
+    "url": "https://github.com/KRSHH/standard-saas-starter/issues"
   },
   "keywords": [
     "nextjs",
-    "nextjs-template",
+    "standard-saas-starter",
     "nextjs-boilerplate",
     "saas-starter",
     "saas-boilerplate",

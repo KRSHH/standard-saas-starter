@@ -114,7 +114,7 @@ const OPTIONAL: Service[] = [
 
 // ---------- run ----------
 
-console.log(`\n${bold("Next.js SaaS Template — setup")}\n`);
+console.log(`\n${bold("Standard SaaS Starter — setup")}\n`);
 
 if (!existsSync(examplePath)) {
   console.error(

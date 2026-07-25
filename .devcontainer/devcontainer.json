@@ -1,5 +1,5 @@
 {
-  "name": "Next.js SaaS Template",
+  "name": "Standard SaaS Starter",
   "image": "mcr.microsoft.com/devcontainers/typescript-node:22",
   "features": {
     "ghcr.io/shyim/devcontainers-features/bun:0": {}

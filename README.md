@@ -1,4 +1,4 @@
-<h1 align="center">Next.js SaaS Template</h1>
+<h1 align="center">Standard SaaS Starter</h1>
 
 <p align="center">
   Production-grade Next.js SaaS starter — auth, billing, email, security, and observability, wired and verified. Clone, configure, ship.
@@ -34,7 +34,7 @@
 **A batteries-included Next.js 16 boilerplate for SaaS products**: Supabase SSR authentication, Postgres with row-level security via Drizzle ORM, Stripe + Razorpay subscription webhooks, Resend transactional email, in-app notifications, file uploads, audit logging, PostHog analytics, Sentry error tracking, strict nonce-based CSP, rate limiting, Vitest + Playwright tests, and full SEO plumbing — all pre-wired so you start at your product, not the plumbing.
 
 > [!TIP]
-> **[Use this template](https://github.com/KRSHH/nextjs-template/generate)** to start a fresh repo, or clone directly. Every optional integration degrades gracefully — you can run the app with nothing but a Supabase project.
+> **[Use this template](https://github.com/KRSHH/standard-saas-starter/generate)** to start a fresh repo, or clone directly. Every optional integration degrades gracefully — you can run the app with nothing but a Supabase project.
 
 ## Tech stack
 
@@ -54,7 +54,7 @@
 ## Quick start
 
 ```bash
-git clone https://github.com/KRSHH/nextjs-template.git my-saas
+git clone https://github.com/KRSHH/standard-saas-starter.git my-saas
 cd my-saas
 bun install
 bun run setup     # creates .env.local + shows exactly what's configured / missing
@@ -89,14 +89,14 @@ bun run dev          # → http://localhost:3000
 
 ## One-click deploy
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FKRSHH%2Fnextjs-template&project-name=my-saas&repository-name=my-saas&env=NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY,DATABASE_URL&envDescription=Get%20these%20from%20your%20free%20Supabase%20project%20%E2%86%92%20Project%20Settings&envLink=https%3A%2F%2Fsupabase.com%2Fdashboard)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FKRSHH%2Fstandard-saas-starter&project-name=my-saas&repository-name=my-saas&env=NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY,DATABASE_URL&envDescription=Get%20these%20from%20your%20free%20Supabase%20project%20%E2%86%92%20Project%20Settings&envLink=https%3A%2F%2Fsupabase.com%2Fdashboard)
 
 Deploys anywhere Next.js runs (Vercel, Railway, Fly.io, self-hosted Node/Bun). After deploying, hit `/api/health` — it reports DB connectivity and which optional integrations the deploy has configured.
 
 > [!TIP]
 > **On Vercel?** After deploying, install the [Supabase Vercel integration](https://vercel.com/integrations/supabase) and pick your project. It injects env vars under its own names (`POSTGRES_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, …) — the app **auto-detects all of them**, so you don't have to create or alias anything by hand. Redeploy and you're live. See [Environment Variables](./docs/02-environment-variables.md) for the full alias list.
 
-You can also open the repo in a ready-to-code [GitHub Codespace](https://codespaces.new/KRSHH/nextjs-template) — the devcontainer installs Bun, dependencies, and runs `bun run setup` for you.
+You can also open the repo in a ready-to-code [GitHub Codespace](https://codespaces.new/KRSHH/standard-saas-starter) — the devcontainer installs Bun, dependencies, and runs `bun run setup` for you.
 
 ## Documentation
 
@@ -234,17 +234,17 @@ One vendor covers auth + Postgres + storage with row-level security spanning all
 
 PRs welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for setup and guidelines — the short version: keep it lean, keep it plug-and-play, and run `bun run check && bun run test` before pushing.
 
-- [Report a bug](https://github.com/KRSHH/nextjs-template/issues/new?template=bug_report.yml)
-- [Request a feature](https://github.com/KRSHH/nextjs-template/issues/new?template=feature_request.yml)
-- [Discussions](https://github.com/KRSHH/nextjs-template/discussions)
+- [Report a bug](https://github.com/KRSHH/standard-saas-starter/issues/new?template=bug_report.yml)
+- [Request a feature](https://github.com/KRSHH/standard-saas-starter/issues/new?template=feature_request.yml)
+- [Discussions](https://github.com/KRSHH/standard-saas-starter/discussions)
 
 If this template saves you time, a star helps others find it.
 
 <details>
   <summary><kbd>Star History</kbd></summary>
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=KRSHH%2Fnextjs-template&theme=dark&type=Date">
-    <img width="100%" alt="Star history chart for KRSHH/nextjs-template" src="https://api.star-history.com/svg?repos=KRSHH%2Fnextjs-template&type=Date">
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=KRSHH%2Fstandard-saas-starter&theme=dark&type=Date">
+    <img width="100%" alt="Star history chart for KRSHH/standard-saas-starter" src="https://api.star-history.com/svg?repos=KRSHH%2Fstandard-saas-starter&type=Date">
   </picture>
 </details>
 
@@ -254,13 +254,13 @@ If this template saves you time, a star helps others find it.
 
 <!-- Badge references -->
 
-[ci-image]: https://github.com/KRSHH/nextjs-template/actions/workflows/ci.yml/badge.svg?branch=main
-[ci-url]: https://github.com/KRSHH/nextjs-template/actions/workflows/ci.yml
-[license-image]: https://img.shields.io/github/license/KRSHH/nextjs-template
+[ci-image]: https://github.com/KRSHH/standard-saas-starter/actions/workflows/ci.yml/badge.svg?branch=main
+[ci-url]: https://github.com/KRSHH/standard-saas-starter/actions/workflows/ci.yml
+[license-image]: https://img.shields.io/github/license/KRSHH/standard-saas-starter
 [license-url]: LICENSE
-[next-image]: https://img.shields.io/github/package-json/dependency-version/KRSHH/nextjs-template/next?label=Next.js&logo=nextdotjs&logoColor=white
+[next-image]: https://img.shields.io/github/package-json/dependency-version/KRSHH/standard-saas-starter/next?label=Next.js&logo=nextdotjs&logoColor=white
 [next-url]: https://nextjs.org
-[ts-image]: https://img.shields.io/github/package-json/dependency-version/KRSHH/nextjs-template/dev/typescript?label=TypeScript&logo=typescript&logoColor=white
+[ts-image]: https://img.shields.io/github/package-json/dependency-version/KRSHH/standard-saas-starter/dev/typescript?label=TypeScript&logo=typescript&logoColor=white
 [ts-url]: https://www.typescriptlang.org
 [bun-image]: https://img.shields.io/badge/Bun-1.3-14151a?logo=bun&logoColor=fbf0df
 [bun-url]: https://bun.sh

@@ -7,8 +7,8 @@ DX improvements are always welcome.
 ## Getting started
 
 ```bash
-git clone https://github.com/KRSHH/nextjs-template.git
-cd nextjs-template
+git clone https://github.com/KRSHH/standard-saas-starter.git
+cd standard-saas-starter
 bun install
 cp .env.example .env.local   # fill in Supabase + DATABASE_URL at minimum
 bun run dev
@@ -41,6 +41,6 @@ Playwright E2E.
 
 ## Reporting bugs
 
-Use the [bug report template](https://github.com/KRSHH/nextjs-template/issues/new?template=bug_report.yml).
+Use the [bug report template](https://github.com/KRSHH/standard-saas-starter/issues/new?template=bug_report.yml).
 For security vulnerabilities, see [SECURITY.md](SECURITY.md) — please don't open
 a public issue.

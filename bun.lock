@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "nextjs-template",
+      "name": "standard-saas-starter",
       "dependencies": {
         "@hookform/resolvers": "^5.4.0",
         "@radix-ui/react-avatar": "^1.2.3",
